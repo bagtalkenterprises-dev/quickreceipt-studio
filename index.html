@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickReceipt Studio</title>
+  <style>
+    :root {
+      --bg: #f4f4f4;
+      --card: #ffffff;
+      --ink: #111111;
+      --muted: #666666;
+      --border: #dddddd;
+    }* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 20px;
+}
+
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+}
+
+h1, h2, h3 { margin-top: 0; }
+.muted { color: var(--muted); }
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 12px 0 6px;
+}
+
+input, textarea, button, select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+textarea { min-height: 110px; resize: vertical; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab {
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  width: auto;
+}
+.tab.active { background: #111; color: #fff; border-color: #111; }
+
+.hidden { display: none; }
+
+.receipt-preview {
+  width: 320px;
+  max-width: 100%;
+  background: white;
+  color: black;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 0 auto;
+  white-space: pre-wrap;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.15;
+}
+
+canvas {
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fafafa;
+  cursor: crosshair;
+}
+
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.btn-row button { width: auto; cursor: pointer; }
+
+.small { font-size: 12px; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .wrap { grid-template-columns: 1fr; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>QuickReceipt Studio</h1>
+      <p class="muted">Create clean receipt-style text and edit your own receipt screenshots.</p><div class="tabs">
+    <button class="tab active" id="tabCreateBtn">Create Receipt</button>
+    <button class="tab" id="tabEditBtn">Edit Screenshot</button>
+  </div>
+
+  <div id="createTab">
+    <label>Business Name</label>
+    <input id="bizName" value="ASHLEY CUSTOM DESIGNS" />
+
+    <div class="row">
+      <div>
+        <label>Date</label>
+        <input id="receiptDate" value="03/15/2026" />
+      </div>
+      <div>
+        <label>Time</label>
+        <input id="receiptTime" value="03:45 PM" />
+      </div>
+    </div>
+
+    <label>Order Number</label>
+    <input id="orderNumber" value="1001" />
+
+    <label>Items (one per line: ITEM NAME | PRICE)</label>
+    <textarea id="itemsInput">CUSTOM SHIRT|20.00
+
+LOGO PRINT|15.00 STICKER PACK|5.00</textarea>
+
+<div class="row">
+      <div>
+        <label>Tax Rate (%)</label>
+        <input id="taxRate" type="number" step="0.01" value="8.25" />
+      </div>
+      <div>
+        <label>Footer</label>
+        <input id="footerText" value="THANK YOU FOR YOUR BUSINESS" />
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button id="generateBtn">Generate</button>
+      <button id="downloadReceiptTxtBtn">Download TXT</button>
+      <button id="downloadReceiptPngBtn">Download PNG</button>
+    </div>
+    <p class="small">Tip: Keep item names short for that clean receipt look.</p>
+  </div>
+
+  <div id="editTab" class="hidden">
+    <label>Upload Your Screenshot</label>
+    <input id="imageUpload" type="file" accept="image/*" />
+
+    <label>Replacement Text</label>
+    <input id="overlayText" value="20.00" />
+
+    <div class="row">
+      <div>
+        <label>Font Size</label
