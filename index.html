@@ -1,165 +1,356 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QuickReceipt Studio</title>
   <style>
     :root {
-      --bg: #f4f4f4;
+      --bg: #f3f3f3;
       --card: #ffffff;
-      --ink: #111111;
+      --text: #111111;
       --muted: #666666;
       --border: #dddddd;
-    }* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  padding: 20px;
-}
+    }
 
-.wrap {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 20px;
-}
+    * { box-sizing: border-box; }
 
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.04);
-}
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+    }
 
-h1, h2, h3 { margin-top: 0; }
-.muted { color: var(--muted); }
+    .app {
+      max-width: 720px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+    }
 
-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  margin: 12px 0 6px;
-}
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
 
-input, textarea, button, select {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  font-size: 14px;
-}
+    .subtext {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
 
-textarea { min-height: 110px; resize: vertical; }
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-.tab {
-  border: 1px solid var(--border);
-  background: #fff;
-  padding: 10px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  width: auto;
-}
-.tab.active { background: #111; color: #fff; border-color: #111; }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
 
-.hidden { display: none; }
+    .tab {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 16px;
+      cursor: pointer;
+    }
 
-.receipt-preview {
-  width: 320px;
-  max-width: 100%;
-  background: white;
-  color: black;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 16px;
-  margin: 0 auto;
-  white-space: pre-wrap;
-  font-family: "Courier New", monospace;
-  font-size: 13px;
-  line-height: 1.15;
-}
+    .tab.active {
+      background: #111;
+      color: #fff;
+      border-color: #111;
+    }
 
-canvas {
-  max-width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: #fafafa;
-  cursor: crosshair;
-}
+    .section {
+      display: none;
+    }
 
-.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-.btn-row button { width: auto; cursor: pointer; }
+    .section.active {
+      display: block;
+    }
 
-.small { font-size: 12px; color: var(--muted); }
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 16px 0 8px;
+      font-size: 15px;
+    }
 
-@media (max-width: 900px) {
-  .wrap { grid-template-columns: 1fr; }
-}
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 16px;
+      background: #fff;
+    }
 
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button.action {
+      border: 1px solid var(--border);
+      background: #efefef;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .tip {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 16px;
+    }
+
+    .preview-wrap {
+      margin-top: 24px;
+    }
+
+    .preview-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .receipt-preview {
+      width: 100%;
+      max-width: 360px;
+      min-height: 280px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      white-space: pre-wrap;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.18;
+      overflow-wrap: anywhere;
+    }
+
+    .editor-box {
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      background: #fafafa;
+    }
+
+    .small {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    @media (max-width: 640px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .app {
+        padding: 18px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>QuickReceipt Studio</h1>
-      <p class="muted">Create clean receipt-style text and edit your own receipt screenshots.</p><div class="tabs">
-    <button class="tab active" id="tabCreateBtn">Create Receipt</button>
-    <button class="tab" id="tabEditBtn">Edit Screenshot</button>
+  <div class="app">
+    <h1>QuickReceipt Studio</h1>
+    <div class="subtext">Create clean receipt-style text and edit your own receipt screenshots.</div>
+
+    <div class="tabs">
+      <button class="tab active" id="createTabBtn" type="button">Create Receipt</button>
+      <button class="tab" id="editTabBtn" type="button">Edit Screenshot</button>
+    </div>
+
+    <div id="createSection" class="section active">
+      <label for="biz">Business Name</label>
+      <input id="biz" value="ASHLEY CUSTOM DESIGNS" />
+
+      <div class="row">
+        <div>
+          <label for="date">Date</label>
+          <input id="date" value="03/15/2026" />
+        </div>
+        <div>
+          <label for="time">Time</label>
+          <input id="time" value="03:45 PM" />
+        </div>
+      </div>
+
+      <label for="order">Order Number</label>
+      <input id="order" value="1001" />
+
+      <label for="items">Items (one per line: ITEM NAME | PRICE)</label>
+      <textarea id="items">CUSTOM SHIRT|20.00
+LOGO PRINT|15.00
+STICKER PACK|5.00</textarea>
+
+      <div class="row">
+        <div>
+          <label for="tax">Tax Rate (%)</label>
+          <input id="tax" type="number" step="0.01" value="8.25" />
+        </div>
+        <div>
+          <label for="footer">Footer</label>
+          <input id="footer" value="THANK YOU FOR YOUR BUSINESS" />
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="action" type="button" id="generateBtn">Generate</button>
+        <button class="action" type="button" id="downloadTxtBtn">Download TXT</button>
+      </div>
+
+      <div class="tip">Tip: Keep item names short for that clean receipt look.</div>
+
+      <div class="preview-wrap">
+        <div class="preview-title">Receipt Preview</div>
+        <div id="receiptPreview" class="receipt-preview">Press Generate to preview your receipt.</div>
+      </div>
+    </div>
+
+    <div id="editSection" class="section">
+      <div class="editor-box">
+        <div class="preview-title">Screenshot editor</div>
+        <div class="small">
+          This tab is the next upgrade. The receipt generator works now.
+          After this is working on your site, we’ll add screenshot upload, text cover, and replacement text editing.
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div id="createTab">
-    <label>Business Name</label>
-    <input id="bizName" value="ASHLEY CUSTOM DESIGNS" />
+  <script>
+    const createTabBtn = document.getElementById("createTabBtn");
+    const editTabBtn = document.getElementById("editTabBtn");
+    const createSection = document.getElementById("createSection");
+    const editSection = document.getElementById("editSection");
+    const preview = document.getElementById("receiptPreview");
 
-    <div class="row">
-      <div>
-        <label>Date</label>
-        <input id="receiptDate" value="03/15/2026" />
-      </div>
-      <div>
-        <label>Time</label>
-        <input id="receiptTime" value="03:45 PM" />
-      </div>
-    </div>
+    function switchTab(tab) {
+      if (tab === "create") {
+        createTabBtn.classList.add("active");
+        editTabBtn.classList.remove("active");
+        createSection.classList.add("active");
+        editSection.classList.remove("active");
+      } else {
+        editTabBtn.classList.add("active");
+        createTabBtn.classList.remove("active");
+        editSection.classList.add("active");
+        createSection.classList.remove("active");
+      }
+    }
 
-    <label>Order Number</label>
-    <input id="orderNumber" value="1001" />
+    createTabBtn.addEventListener("click", function () {
+      switchTab("create");
+    });
 
-    <label>Items (one per line: ITEM NAME | PRICE)</label>
-    <textarea id="itemsInput">CUSTOM SHIRT|20.00
+    editTabBtn.addEventListener("click", function () {
+      switchTab("edit");
+    });
 
-LOGO PRINT|15.00 STICKER PACK|5.00</textarea>
+    function moneyLine(label, amount) {
+      const left = String(label).toUpperCase();
+      const right = Number(amount).toFixed(2);
+      let spaces = 32 - left.length - right.length;
+      if (spaces < 1) spaces = 1;
+      return left + " ".repeat(spaces) + right;
+    }
 
-<div class="row">
-      <div>
-        <label>Tax Rate (%)</label>
-        <input id="taxRate" type="number" step="0.01" value="8.25" />
-      </div>
-      <div>
-        <label>Footer</label>
-        <input id="footerText" value="THANK YOU FOR YOUR BUSINESS" />
-      </div>
-    </div>
+    function itemLine(name, amount) {
+      const left = String(name).toUpperCase();
+      const right = Number(amount).toFixed(2);
+      let spaces = 32 - left.length - right.length;
+      if (spaces < 1) spaces = 1;
+      return left + " ".repeat(spaces) + right;
+    }
 
-    <div class="btn-row">
-      <button id="generateBtn">Generate</button>
-      <button id="downloadReceiptTxtBtn">Download TXT</button>
-      <button id="downloadReceiptPngBtn">Download PNG</button>
-    </div>
-    <p class="small">Tip: Keep item names short for that clean receipt look.</p>
-  </div>
+    function buildReceiptText() {
+      const biz = document.getElementById("biz").value.trim().toUpperCase() || "BUSINESS NAME";
+      const date = document.getElementById("date").value.trim() || "";
+      const time = document.getElementById("time").value.trim() || "";
+      const order = document.getElementById("order").value.trim() || "";
+      const itemsRaw = document.getElementById("items").value;
+      const taxRate = parseFloat(document.getElementById("tax").value || "0");
+      const footer = document.getElementById("footer").value.trim().toUpperCase() || "";
 
-  <div id="editTab" class="hidden">
-    <label>Upload Your Screenshot</label>
-    <input id="imageUpload" type="file" accept="image/*" />
+      const lines = itemsRaw.split("\n").map(line => line.trim()).filter(line => line.length > 0);
 
-    <label>Replacement Text</label>
-    <input id="overlayText" value="20.00" />
+      let subtotal = 0;
+      let output = "";
 
-    <div class="row">
-      <div>
-        <label>Font Size</label
+      output += biz + "\n\n";
+      output += "DATE: " + date + "\n";
+      output += "TIME: " + time + "\n";
+      output += "ORDER: " + order + "\n\n";
+
+      lines.forEach(line => {
+        const parts = line.split("|");
+        const name = (parts[0] || "").trim();
+        const price = parseFloat((parts[1] || "").trim());
+
+        if (!name || isNaN(price)) return;
+
+        subtotal += price;
+        output += itemLine(name, price) + "\n";
+      });
+
+      const taxAmount = subtotal * (taxRate / 100);
+      const total = subtotal + taxAmount;
+
+      output += "\n";
+      output += moneyLine("SUBTOTAL", subtotal) + "\n";
+      output += moneyLine("TAX", taxAmount) + "\n";
+      output += moneyLine("TOTAL", total) + "\n";
+
+      if (footer) {
+        output += "\n" + footer;
+      }
+
+      return output;
+    }
+
+    function generateReceipt() {
+      preview.textContent = buildReceiptText();
+    }
+
+    function downloadTextFile() {
+      const text = buildReceiptText();
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "receipt.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", generateReceipt);
+    document.getElementById("downloadTxtBtn").addEventListener("click", downloadTextFile);
+
+    generateReceipt();
+  </script>
+</body>
+  </html>
