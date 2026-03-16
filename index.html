@@ -5,171 +5,289 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QuickReceipt Studio</title>
   <style>
-    :root {
-      --bg: #f3f3f3;
-      --card: #ffffff;
-      --text: #111111;
-      --muted: #666666;
-      --border: #dddddd;
+    :root{
+      --bg:#f3f3f3;
+      --card:#ffffff;
+      --text:#111111;
+      --muted:#666666;
+      --border:#dddddd;
+      --accent:#111111;
     }
 
-    * { box-sizing: border-box; }
+    *{box-sizing:border-box;}
 
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 20px;
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      padding:20px;
     }
 
-    .app {
-      max-width: 720px;
-      margin: 0 auto;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+    .app{
+      max-width:1250px;
+      margin:0 auto;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:24px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.05);
     }
 
-    h1 {
-      margin: 0 0 10px;
-      font-size: 28px;
+    h1{
+      margin:0 0 10px;
+      font-size:28px;
     }
 
-    .subtext {
-      color: var(--muted);
-      margin-bottom: 20px;
+    .subtext{
+      color:var(--muted);
+      margin-bottom:20px;
     }
 
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 22px;
-      flex-wrap: wrap;
+    .tabs{
+      display:flex;
+      gap:10px;
+      margin-bottom:22px;
+      flex-wrap:wrap;
     }
 
-    .tab {
-      border: 1px solid var(--border);
-      background: #fff;
-      border-radius: 999px;
-      padding: 12px 18px;
-      font-size: 16px;
-      cursor: pointer;
+    .tab{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:999px;
+      padding:12px 18px;
+      font-size:16px;
+      cursor:pointer;
     }
 
-    .tab.active {
-      background: #111;
-      color: #fff;
-      border-color: #111;
+    .tab.active{
+      background:#111;
+      color:#fff;
+      border-color:#111;
     }
 
-    .section {
-      display: none;
+    .section{display:none;}
+    .section.active{display:block;}
+
+    label{
+      display:block;
+      font-weight:700;
+      margin:14px 0 8px;
+      font-size:14px;
     }
 
-    .section.active {
-      display: block;
+    input, textarea, select{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      font-size:16px;
+      background:#fff;
     }
 
-    label {
-      display: block;
-      font-weight: 700;
-      margin: 16px 0 8px;
-      font-size: 15px;
+    textarea{
+      min-height:140px;
+      resize:vertical;
     }
 
-    input, textarea {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-      font-size: 16px;
-      background: #fff;
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
     }
 
-    textarea {
-      min-height: 140px;
-      resize: vertical;
+    .buttons{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:18px;
     }
 
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+    button.action{
+      border:1px solid var(--border);
+      background:#efefef;
+      border-radius:14px;
+      padding:12px 16px;
+      font-size:15px;
+      cursor:pointer;
     }
 
-    .buttons {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 18px;
+    button.action.dark{
+      background:#111;
+      color:#fff;
+      border-color:#111;
     }
 
-    button.action {
-      border: 1px solid var(--border);
-      background: #efefef;
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-size: 16px;
-      cursor: pointer;
+    .tip{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:14px;
+      line-height:1.4;
     }
 
-    .tip {
-      color: var(--muted);
-      font-size: 14px;
-      margin-top: 16px;
+    .preview-wrap{
+      margin-top:24px;
     }
 
-    .preview-wrap {
-      margin-top: 24px;
+    .preview-title{
+      font-weight:700;
+      margin-bottom:10px;
     }
 
-    .preview-title {
-      font-weight: 700;
-      margin-bottom: 10px;
+    .receipt-preview{
+      width:100%;
+      max-width:380px;
+      min-height:280px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:16px;
+      white-space:pre-wrap;
+      font-family:"Courier New", monospace;
+      font-size:14px;
+      line-height:1.18;
+      overflow-wrap:anywhere;
     }
 
-    .receipt-preview {
-      width: 100%;
-      max-width: 360px;
-      min-height: 280px;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      white-space: pre-wrap;
-      font-family: "Courier New", monospace;
-      font-size: 14px;
-      line-height: 1.18;
-      overflow-wrap: anywhere;
+    .editor-layout{
+      display:grid;
+      grid-template-columns:380px 1fr;
+      gap:20px;
+      align-items:start;
     }
 
-    .editor-box {
-      border: 1px dashed var(--border);
-      border-radius: 16px;
-      padding: 18px;
-      background: #fafafa;
+    .editor-panel{
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:18px;
+      background:#fafafa;
+      position:sticky;
+      top:20px;
     }
 
-    .small {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.45;
+    .stage-wrap{
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
+      background:#fff;
+      overflow:hidden;
     }
 
-    @media (max-width: 640px) {
-      .row {
-        grid-template-columns: 1fr;
+    .canvas-toolbar{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+      align-items:center;
+    }
+
+    .canvas-toolbar .zoom-label{
+      font-size:14px;
+      color:#444;
+      padding:8px 10px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fafafa;
+    }
+
+    .canvas-container{
+      width:100%;
+      height:75vh;
+      min-height:520px;
+      max-height:900px;
+      overflow:hidden;
+      position:relative;
+      background:#f8f8f8;
+      border:1px solid #e7e7e7;
+      border-radius:14px;
+      touch-action:none;
+      cursor:grab;
+    }
+
+    .canvas-container.grabbing{
+      cursor:grabbing;
+    }
+
+    #receiptCanvas{
+      display:block;
+      background:#fff;
+      touch-action:none;
+    }
+
+    .small{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .status{
+      margin-top:10px;
+      font-size:14px;
+      color:#333;
+      line-height:1.4;
+    }
+
+    .line-list{
+      margin-top:16px;
+      border-top:1px solid #e7e7e7;
+      padding-top:14px;
+    }
+
+    .line-item{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px;
+      margin-bottom:8px;
+      background:#fff;
+      cursor:pointer;
+    }
+
+    .line-item.active{
+      border-color:#111;
+      background:#f2f2f2;
+    }
+
+    .line-item-title{
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:4px;
+    }
+
+    .line-item-text{
+      font-size:12px;
+      color:#555;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    @media (max-width: 980px){
+      .editor-layout{
+        grid-template-columns:1fr;
       }
 
-      .app {
-        padding: 18px;
+      .editor-panel{
+        position:relative;
+        top:0;
+      }
+    }
+
+    @media (max-width: 640px){
+      .row{
+        grid-template-columns:1fr;
       }
 
-      h1 {
-        font-size: 24px;
+      .app{
+        padding:18px;
+      }
+
+      h1{
+        font-size:24px;
+      }
+
+      .canvas-container{
+        height:62vh;
+        min-height:420px;
       }
     }
   </style>
@@ -177,7 +295,7 @@
 <body>
   <div class="app">
     <h1>QuickReceipt Studio</h1>
-    <div class="subtext">Create clean receipt-style text and edit your own receipt screenshots.</div>
+    <div class="subtext">Create clean receipt-style text and edit your own receipt screenshots line by line.</div>
 
     <div class="tabs">
       <button class="tab active" id="createTabBtn" type="button">Create Receipt</button>
@@ -219,11 +337,11 @@ STICKER PACK|5.00</textarea>
       </div>
 
       <div class="buttons">
-        <button class="action" type="button" id="generateBtn">Generate</button>
+        <button class="action dark" type="button" id="generateBtn">Generate</button>
         <button class="action" type="button" id="downloadTxtBtn">Download TXT</button>
       </div>
 
-      <div class="tip">Tip: Keep item names short for that clean receipt look.</div>
+      <div class="tip">Keep item names short for that clean receipt look.</div>
 
       <div class="preview-wrap">
         <div class="preview-title">Receipt Preview</div>
@@ -232,11 +350,104 @@ STICKER PACK|5.00</textarea>
     </div>
 
     <div id="editSection" class="section">
-      <div class="editor-box">
-        <div class="preview-title">Screenshot editor</div>
-        <div class="small">
-          This tab is the next upgrade. The receipt generator works now.
-          After this is working on your site, we’ll add screenshot upload, text cover, and replacement text editing.
+      <div class="editor-layout">
+        <div class="editor-panel">
+          <div class="preview-title">Screenshot Editor</div>
+
+          <label for="imageUpload">Upload Receipt Screenshot</label>
+          <input id="imageUpload" type="file" accept="image/*" />
+
+          <div class="buttons">
+            <button class="action dark" type="button" id="addLineBtn">Add Line</button>
+            <button class="action" type="button" id="duplicateLineBtn">Duplicate Line</button>
+            <button class="action" type="button" id="deleteLineBtn">Delete Line</button>
+          </div>
+
+          <label for="lineText">Selected Line Text</label>
+          <input id="lineText" value="" placeholder="Type the replacement line here" />
+
+          <div class="row">
+            <div>
+              <label for="fontSize">Font Size</label>
+              <input id="fontSize" type="number" value="26" min="8" max="100" />
+            </div>
+            <div>
+              <label for="fontFamily">Font</label>
+              <select id="fontFamily">
+                <option value="Courier New">Courier New</option>
+                <option value="Arial">Arial</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Times New Roman">Times New Roman</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="textColor">Text Color</label>
+              <input id="textColor" type="color" value="#111111" />
+            </div>
+            <div>
+              <label for="boxColor">Cover Box Color</label>
+              <input id="boxColor" type="color" value="#ffffff" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="boxWidth">Box Width</label>
+              <input id="boxWidth" type="number" value="260" min="20" max="2000" />
+            </div>
+            <div>
+              <label for="boxHeight">Box Height</label>
+              <input id="boxHeight" type="number" value="34" min="10" max="400" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="lineX">Line X</label>
+              <input id="lineX" type="number" value="40" />
+            </div>
+            <div>
+              <label for="lineY">Line Y</label>
+              <input id="lineY" type="number" value="40" />
+            </div>
+          </div>
+
+          <div class="buttons">
+            <button class="action" type="button" id="applyChangesBtn">Apply Changes</button>
+            <button class="action" type="button" id="fitScreenBtn">Fit Screen</button>
+            <button class="action" type="button" id="resetViewBtn">Reset View</button>
+            <button class="action dark" type="button" id="downloadEditedBtn">Download Edited PNG</button>
+          </div>
+
+          <div class="tip">
+            Use two fingers to pinch zoom on mobile. Drag empty space to pan. Drag a selected line to move it.
+          </div>
+
+          <div id="editorStatus" class="status">No image uploaded yet.</div>
+
+          <div class="line-list">
+            <div class="preview-title">Lines</div>
+            <div id="lineList"></div>
+          </div>
+        </div>
+
+        <div class="stage-wrap">
+          <div class="canvas-toolbar">
+            <button class="action" type="button" id="zoomOutBtn">-</button>
+            <button class="action" type="button" id="zoomInBtn">+</button>
+            <div class="zoom-label">Zoom: <span id="zoomValue">100%</span></div>
+          </div>
+
+          <div id="canvasContainer" class="canvas-container">
+            <canvas id="receiptCanvas" width="900" height="1200"></canvas>
+          </div>
+
+          <div class="tip">
+            Tap a line on the image or from the list. Then edit it on the left. Best receipt match: Courier New, black text, white box.
+          </div>
         </div>
       </div>
     </div>
@@ -349,8 +560,167 @@ STICKER PACK|5.00</textarea>
 
     document.getElementById("generateBtn").addEventListener("click", generateReceipt);
     document.getElementById("downloadTxtBtn").addEventListener("click", downloadTextFile);
-
     generateReceipt();
-  </script>
-</body>
-  </html>
+
+    const canvas = document.getElementById("receiptCanvas");
+    const ctx = canvas.getContext("2d");
+    const imageUpload = document.getElementById("imageUpload");
+    const editorStatus = document.getElementById("editorStatus");
+    const lineList = document.getElementById("lineList");
+    const zoomValue = document.getElementById("zoomValue");
+    const canvasContainer = document.getElementById("canvasContainer");
+
+    const lineTextInput = document.getElementById("lineText");
+    const fontSizeInput = document.getElementById("fontSize");
+    const fontFamilyInput = document.getElementById("fontFamily");
+    const textColorInput = document.getElementById("textColor");
+    const boxColorInput = document.getElementById("boxColor");
+    const boxWidthInput = document.getElementById("boxWidth");
+    const boxHeightInput = document.getElementById("boxHeight");
+    const lineXInput = document.getElementById("lineX");
+    const lineYInput = document.getElementById("lineY");
+
+    let baseImage = null;
+    let lines = [];
+    let selectedLineIndex = -1;
+
+    let viewScale = 1;
+    let minScale = 0.25;
+    let maxScale = 6;
+    let panX = 0;
+    let panY = 0;
+
+    let isDraggingLine = false;
+    let isPanning = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    let panStartX = 0;
+    let panStartY = 0;
+    let panOriginX = 0;
+    let panOriginY = 0;
+
+    let pinchStartDistance = 0;
+    let pinchStartScale = 1;
+    let pinchCenterStart = null;
+
+    function setStatus(text) {
+      editorStatus.textContent = text;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function updateZoomLabel() {
+      zoomValue.textContent = Math.round(viewScale * 100) + "%";
+    }
+
+    function resizeCanvasToImage(img) {
+      canvas.width = img.width;
+      canvas.height = img.height;
+    }
+
+    function fitToScreen() {
+      if (!baseImage) return;
+      const pad = 30;
+      const scaleX = (canvasContainer.clientWidth - pad) / canvas.width;
+      const scaleY = (canvasContainer.clientHeight - pad) / canvas.height;
+      viewScale = clamp(Math.min(scaleX, scaleY), minScale, maxScale);
+
+      const displayW = canvas.width * viewScale;
+      const displayH = canvas.height * viewScale;
+
+      panX = (canvasContainer.clientWidth - displayW) / 2;
+      panY = (canvasContainer.clientHeight - displayH) / 2;
+
+      applyCanvasTransform();
+      drawCanvas();
+    }
+
+    function resetView() {
+      fitToScreen();
+    }
+
+    function applyCanvasTransform() {
+      canvas.style.transformOrigin = "0 0";
+      canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${viewScale})`;
+      updateZoomLabel();
+    }
+
+    function createLine(defaultText = "NEW LINE 20.00") {
+      return {
+        x: 40,
+        y: 40,
+        w: 260,
+        h: 34,
+        text: defaultText,
+        fontSize: 26,
+        fontFamily: "Courier New",
+        textColor: "#111111",
+        boxColor: "#ffffff"
+      };
+    }
+
+    function renderLineList() {
+      lineList.innerHTML = "";
+
+      if (!lines.length) {
+        lineList.innerHTML = '<div class="small">No lines yet.</div>';
+        return;
+      }
+
+      lines.forEach((line, index) => {
+        const item = document.createElement("div");
+        item.className = "line-item" + (index === selectedLineIndex ? " active" : "");
+        item.innerHTML = `
+          <div class="line-item-title">Line ${index + 1}</div>
+          <div class="line-item-text">${escapeHtml(line.text)}</div>
+        `;
+        item.addEventListener("click", function () {
+          selectedLineIndex = index;
+          syncControlsFromSelected();
+          drawCanvas();
+          renderLineList();
+        });
+        lineList.appendChild(item);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function syncControlsFromSelected() {
+      if (selectedLineIndex < 0 || !lines[selectedLineIndex]) {
+        lineTextInput.value = "";
+        return;
+      }
+
+      const line = lines[selectedLineIndex];
+      lineTextInput.value = line.text;
+      fontSizeInput.value = line.fontSize;
+      fontFamilyInput.value = line.fontFamily;
+      textColorInput.value = line.textColor;
+      boxColorInput.value = line.boxColor;
+      boxWidthInput.value = line.w;
+      boxHeightInput.value = line.h;
+      lineXInput.value = Math.round(line.x);
+      lineYInput.value = Math.round(line.y);
+    }
+
+    function applyControlsToSelected() {
+      if (selectedLineIndex < 0 || !lines[selectedLineIndex]) return;
+
+      const line = lines[selectedLineIndex];
+      line.text = lineTextInput.value || "";
+      line.fontSize = parseInt(fontSizeInput.value || "26", 10);
+      line.fontFamily = fontFamilyInput.value || "Courier New";
+      line.textColor = textColorInput.value || "#111111";
+      line.boxColor = boxColorInput.value || "#ffffff";
+      line.w = parseInt(boxWidthInput.value || "260", 10);
+      line.h = parseInt(boxHeightInput.value || "34", 10);
+      line.x = parseFloat(lineXInput.value || "0");
+   
