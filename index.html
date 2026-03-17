@@ -1,726 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuickReceipt Studio</title>
   <style>
-    :root{
-      --bg:#f3f3f3;
-      --card:#ffffff;
-      --text:#111111;
-      --muted:#666666;
-      --border:#dddddd;
-      --accent:#111111;
-    }
-
-    *{box-sizing:border-box;}
-
-    body{
-      margin:0;
-      font-family:Arial, Helvetica, sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      padding:20px;
-    }
-
-    .app{
-      max-width:1250px;
-      margin:0 auto;
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:24px;
-      padding:24px;
-      box-shadow:0 8px 24px rgba(0,0,0,0.05);
-    }
-
-    h1{
-      margin:0 0 10px;
-      font-size:28px;
-    }
-
-    .subtext{
-      color:var(--muted);
-      margin-bottom:20px;
-    }
-
-    .tabs{
-      display:flex;
-      gap:10px;
-      margin-bottom:22px;
-      flex-wrap:wrap;
-    }
-
-    .tab{
-      border:1px solid var(--border);
-      background:#fff;
-      border-radius:999px;
-      padding:12px 18px;
-      font-size:16px;
-      cursor:pointer;
-    }
-
-    .tab.active{
-      background:#111;
-      color:#fff;
-      border-color:#111;
-    }
-
-    .section{display:none;}
-    .section.active{display:block;}
-
-    label{
-      display:block;
-      font-weight:700;
-      margin:14px 0 8px;
-      font-size:14px;
-    }
-
-    input, textarea, select{
-      width:100%;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:12px;
-      font-size:16px;
-      background:#fff;
-    }
-
-    textarea{
-      min-height:140px;
-      resize:vertical;
-    }
-
-    .row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-    }
-
-    .buttons{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:18px;
-    }
-
-    button.action{
-      border:1px solid var(--border);
-      background:#efefef;
-      border-radius:14px;
-      padding:12px 16px;
-      font-size:15px;
-      cursor:pointer;
-    }
-
-    button.action.dark{
-      background:#111;
-      color:#fff;
-      border-color:#111;
-    }
-
-    .tip{
-      color:var(--muted);
-      font-size:14px;
-      margin-top:14px;
-      line-height:1.4;
-    }
-
-    .preview-wrap{
-      margin-top:24px;
-    }
-
-    .preview-title{
-      font-weight:700;
-      margin-bottom:10px;
-    }
-
-    .receipt-preview{
-      width:100%;
-      max-width:380px;
-      min-height:280px;
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:16px;
-      white-space:pre-wrap;
-      font-family:"Courier New", monospace;
-      font-size:14px;
-      line-height:1.18;
-      overflow-wrap:anywhere;
-    }
-
-    .editor-layout{
-      display:grid;
-      grid-template-columns:380px 1fr;
-      gap:20px;
-      align-items:start;
-    }
-
-    .editor-panel{
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:18px;
-      background:#fafafa;
-      position:sticky;
-      top:20px;
-    }
-
-    .stage-wrap{
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:14px;
-      background:#fff;
-      overflow:hidden;
-    }
-
-    .canvas-toolbar{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-bottom:12px;
-      align-items:center;
-    }
-
-    .canvas-toolbar .zoom-label{
-      font-size:14px;
-      color:#444;
-      padding:8px 10px;
-      border:1px solid var(--border);
-      border-radius:12px;
-      background:#fafafa;
-    }
-
-    .canvas-container{
-      width:100%;
-      height:75vh;
-      min-height:520px;
-      max-height:900px;
-      overflow:hidden;
-      position:relative;
-      background:#f8f8f8;
-      border:1px solid #e7e7e7;
-      border-radius:14px;
-      touch-action:none;
-      cursor:grab;
-    }
-
-    .canvas-container.grabbing{
-      cursor:grabbing;
-    }
-
-    #receiptCanvas{
-      display:block;
-      background:#fff;
-      touch-action:none;
-    }
-
-    .small{
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.45;
-    }
-
-    .status{
-      margin-top:10px;
-      font-size:14px;
-      color:#333;
-      line-height:1.4;
-    }
-
-    .line-list{
-      margin-top:16px;
-      border-top:1px solid #e7e7e7;
-      padding-top:14px;
-    }
-
-    .line-item{
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:10px;
-      margin-bottom:8px;
-      background:#fff;
-      cursor:pointer;
-    }
-
-    .line-item.active{
-      border-color:#111;
-      background:#f2f2f2;
-    }
-
-    .line-item-title{
-      font-size:13px;
-      font-weight:700;
-      margin-bottom:4px;
-    }
-
-    .line-item-text{
-      font-size:12px;
-      color:#555;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    @media (max-width: 980px){
-      .editor-layout{
-        grid-template-columns:1fr;
-      }
-
-      .editor-panel{
-        position:relative;
-        top:0;
-      }
-    }
-
-    @media (max-width: 640px){
-      .row{
-        grid-template-columns:1fr;
-      }
-
-      .app{
-        padding:18px;
-      }
-
-      h1{
-        font-size:24px;
-      }
-
-      .canvas-container{
-        height:62vh;
-        min-height:420px;
-      }
-    }
+    body{margin:0;padding:20px;font-family:Arial;background:#f3f3f3;color:#111}
+    .app{max-width:1100px;margin:auto;background:#fff;border:1px solid #ddd;border-radius:24px;padding:20px}
+    h1{margin:0 0 10px}
+    .sub{color:#666;margin-bottom:20px}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+    .tab,.btn{border:1px solid #ddd;background:#f0f0f0;border-radius:14px;padding:12px 16px;font-size:16px;cursor:pointer}
+    .tab.active{background:#111;color:#fff;border-color:#111}
+    .section{display:none}
+    .section.active{display:block}
+    label{display:block;font-weight:700;margin:14px 0 8px}
+    input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:14px;font-size:16px;box-sizing:border-box}
+    textarea{min-height:120px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .preview{white-space:pre-wrap;font-family:"Courier New",monospace;border:1px solid #ddd;border-radius:14px;padding:16px;margin-top:20px;max-width:380px;background:#fff}
+    .editor{display:grid;grid-template-columns:340px 1fr;gap:20px}
+    .panel{border:1px solid #ddd;border-radius:18px;padding:16px;background:#fafafa}
+    .stage{border:1px solid #ddd;border-radius:18px;padding:12px;background:#fff;overflow:auto}
+    #canvas{border:1px solid #ddd;max-width:100%;background:#fff}
+    .lineList{margin-top:15px}
+    .lineItem{padding:8px;border:1px solid #ddd;border-radius:10px;background:#fff;margin-bottom:8px;cursor:pointer}
+    .lineItem.active{border-color:#111;background:#f2f2f2}
+    .small{font-size:13px;color:#666;margin-top:10px;line-height:1.4}
+    @media(max-width:900px){.editor,.row{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <div class="app">
     <h1>QuickReceipt Studio</h1>
-    <div class="subtext">Create clean receipt-style text and edit your own receipt screenshots line by line.</div>
+    <div class="sub">Create clean receipt-style text and edit your own receipt screenshots line by line.</div>
 
     <div class="tabs">
-      <button class="tab active" id="createTabBtn" type="button">Create Receipt</button>
-      <button class="tab" id="editTabBtn" type="button">Edit Screenshot</button>
+      <button class="tab active" id="createTab">Create Receipt</button>
+      <button class="tab" id="editTab">Edit Screenshot</button>
     </div>
 
     <div id="createSection" class="section active">
-      <label for="biz">Business Name</label>
-      <input id="biz" value="ASHLEY CUSTOM DESIGNS" />
+      <label>Business Name</label>
+      <input id="biz" value="ASHLEY CUSTOM DESIGNS">
 
       <div class="row">
         <div>
-          <label for="date">Date</label>
-          <input id="date" value="03/15/2026" />
+          <label>Date</label>
+          <input id="date" value="03/15/2026">
         </div>
         <div>
-          <label for="time">Time</label>
-          <input id="time" value="03:45 PM" />
+          <label>Time</label>
+          <input id="time" value="03:45 PM">
         </div>
       </div>
 
-      <label for="order">Order Number</label>
-      <input id="order" value="1001" />
+      <label>Order Number</label>
+      <input id="order" value="1001">
 
-      <label for="items">Items (one per line: ITEM NAME | PRICE)</label>
+      <label>Items (one per line: ITEM NAME | PRICE)</label>
       <textarea id="items">CUSTOM SHIRT|20.00
 LOGO PRINT|15.00
 STICKER PACK|5.00</textarea>
 
       <div class="row">
         <div>
-          <label for="tax">Tax Rate (%)</label>
-          <input id="tax" type="number" step="0.01" value="8.25" />
+          <label>Tax Rate (%)</label>
+          <input id="tax" value="8.25">
         </div>
         <div>
-          <label for="footer">Footer</label>
-          <input id="footer" value="THANK YOU FOR YOUR BUSINESS" />
+          <label>Footer</label>
+          <input id="footer" value="THANK YOU FOR YOUR BUSINESS">
         </div>
       </div>
 
-      <div class="buttons">
-        <button class="action dark" type="button" id="generateBtn">Generate</button>
-        <button class="action" type="button" id="downloadTxtBtn">Download TXT</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <button class="btn" id="generateBtn">Generate</button>
+        <button class="btn" id="downloadTxtBtn">Download TXT</button>
       </div>
 
-      <div class="tip">Keep item names short for that clean receipt look.</div>
-
-      <div class="preview-wrap">
-        <div class="preview-title">Receipt Preview</div>
-        <div id="receiptPreview" class="receipt-preview">Press Generate to preview your receipt.</div>
-      </div>
+      <div class="preview" id="receiptPreview">Press Generate to preview your receipt.</div>
     </div>
 
     <div id="editSection" class="section">
-      <div class="editor-layout">
-        <div class="editor-panel">
-          <div class="preview-title">Screenshot Editor</div>
+      <div class="editor">
+        <div class="panel">
+          <label>Upload Receipt Screenshot</label>
+          <input type="file" id="imageUpload" accept="image/*">
 
-          <label for="imageUpload">Upload Receipt Screenshot</label>
-          <input id="imageUpload" type="file" accept="image/*" />
-
-          <div class="buttons">
-            <button class="action dark" type="button" id="addLineBtn">Add Line</button>
-            <button class="action" type="button" id="duplicateLineBtn">Duplicate Line</button>
-            <button class="action" type="button" id="deleteLineBtn">Delete Line</button>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+            <button class="btn" id="addLineBtn">Add Line</button>
+            <button class="btn" id="deleteLineBtn">Delete Line</button>
+            <button class="btn" id="downloadBtn">Download PNG</button>
           </div>
 
-          <label for="lineText">Selected Line Text</label>
-          <input id="lineText" value="" placeholder="Type the replacement line here" />
+          <label>Selected Line Text</label>
+          <input id="lineText" value="NEW LINE 20.00">
 
           <div class="row">
             <div>
-              <label for="fontSize">Font Size</label>
-              <input id="fontSize" type="number" value="26" min="8" max="100" />
+              <label>Font Size</label>
+              <input id="fontSize" type="number" value="26">
             </div>
             <div>
-              <label for="fontFamily">Font</label>
-              <select id="fontFamily">
-                <option value="Courier New">Courier New</option>
-                <option value="Arial">Arial</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="Times New Roman">Times New Roman</option>
-              </select>
+              <label>Box Width</label>
+              <input id="boxWidth" type="number" value="260">
             </div>
           </div>
 
           <div class="row">
             <div>
-              <label for="textColor">Text Color</label>
-              <input id="textColor" type="color" value="#111111" />
+              <label>Box Height</label>
+              <input id="boxHeight" type="number" value="34">
             </div>
             <div>
-              <label for="boxColor">Cover Box Color</label>
-              <input id="boxColor" type="color" value="#ffffff" />
+              <label>X</label>
+              <input id="lineX" type="number" value="40">
             </div>
           </div>
 
-          <div class="row">
-            <div>
-              <label for="boxWidth">Box Width</label>
-              <input id="boxWidth" type="number" value="260" min="20" max="2000" />
-            </div>
-            <div>
-              <label for="boxHeight">Box Height</label>
-              <input id="boxHeight" type="number" value="34" min="10" max="400" />
-            </div>
-          </div>
+          <label>Y</label>
+          <input id="lineY" type="number" value="40">
 
-          <div class="row">
-            <div>
-              <label for="lineX">Line X</label>
-              <input id="lineX" type="number" value="40" />
-            </div>
-            <div>
-              <label for="lineY">Line Y</label>
-              <input id="lineY" type="number" value="40" />
-            </div>
-          </div>
+          <div class="small">Upload image → Add Line → tap a line → edit text → drag it into place → download PNG.</div>
 
-          <div class="buttons">
-            <button class="action" type="button" id="applyChangesBtn">Apply Changes</button>
-            <button class="action" type="button" id="fitScreenBtn">Fit Screen</button>
-            <button class="action" type="button" id="resetViewBtn">Reset View</button>
-            <button class="action dark" type="button" id="downloadEditedBtn">Download Edited PNG</button>
-          </div>
-
-          <div class="tip">
-            Use two fingers to pinch zoom on mobile. Drag empty space to pan. Drag a selected line to move it.
-          </div>
-
-          <div id="editorStatus" class="status">No image uploaded yet.</div>
-
-          <div class="line-list">
-            <div class="preview-title">Lines</div>
-            <div id="lineList"></div>
-          </div>
+          <div class="lineList" id="lineList"></div>
         </div>
 
-        <div class="stage-wrap">
-          <div class="canvas-toolbar">
-            <button class="action" type="button" id="zoomOutBtn">-</button>
-            <button class="action" type="button" id="zoomInBtn">+</button>
-            <div class="zoom-label">Zoom: <span id="zoomValue">100%</span></div>
-          </div>
-
-          <div id="canvasContainer" class="canvas-container">
-            <canvas id="receiptCanvas" width="900" height="1200"></canvas>
-          </div>
-
-          <div class="tip">
-            Tap a line on the image or from the list. Then edit it on the left. Best receipt match: Courier New, black text, white box.
-          </div>
+        <div class="stage">
+          <canvas id="canvas" width="800" height="1000"></canvas>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    const createTabBtn = document.getElementById("createTabBtn");
-    const editTabBtn = document.getElementById("editTabBtn");
-    const createSection = document.getElementById("createSection");
-    const editSection = document.getElementById("editSection");
-    const preview = document.getElementById("receiptPreview");
+    const createTab=document.getElementById("createTab");
+    const editTab=document.getElementById("editTab");
+    const createSection=document.getElementById("createSection");
+    const editSection=document.getElementById("editSection");
+    const preview=document.getElementById("receiptPreview");
 
-    function switchTab(tab) {
-      if (tab === "create") {
-        createTabBtn.classList.add("active");
-        editTabBtn.classList.remove("active");
-        createSection.classList.add("active");
-        editSection.classList.remove("active");
-      } else {
-        editTabBtn.classList.add("active");
-        createTabBtn.classList.remove("active");
-        editSection.classList.add("active");
-        createSection.classList.remove("active");
-      }
+    createTab.onclick=()=>{createTab.classList.add("active");editTab.classList.remove("active");createSection.classList.add("active");editSection.classList.remove("active");};
+    editTab.onclick=()=>{editTab.classList.add("active");createTab.classList.remove("active");editSection.classList.add("active");createSection.classList.remove("active");};
+
+    function lineFormat(left,right){
+      left=String(left).toUpperCase();
+      right=Number(right).toFixed(2);
+      let spaces=32-left.length-right.length;
+      if(spaces<1)spaces=1;
+      return left+" ".repeat(spaces)+right;
     }
 
-    createTabBtn.addEventListener("click", function () {
-      switchTab("create");
-    });
+    function buildReceipt(){
+      let biz=document.getElementById("biz").value.trim().toUpperCase();
+      let date=document.getElementById("date").value.trim();
+      let time=document.getElementById("time").value.trim();
+      let order=document.getElementById("order").value.trim();
+      let tax=parseFloat(document.getElementById("tax").value||"0");
+      let footer=document.getElementById("footer").value.trim().toUpperCase();
+      let rows=document.getElementById("items").value.split("\n").map(v=>v.trim()).filter(Boolean);
 
-    editTabBtn.addEventListener("click", function () {
-      switchTab("edit");
-    });
+      let subtotal=0;
+      let out=biz+"\n\nDATE: "+date+"\nTIME: "+time+"\nORDER: "+order+"\n\n";
 
-    function moneyLine(label, amount) {
-      const left = String(label).toUpperCase();
-      const right = Number(amount).toFixed(2);
-      let spaces = 32 - left.length - right.length;
-      if (spaces < 1) spaces = 1;
-      return left + " ".repeat(spaces) + right;
-    }
-
-    function itemLine(name, amount) {
-      const left = String(name).toUpperCase();
-      const right = Number(amount).toFixed(2);
-      let spaces = 32 - left.length - right.length;
-      if (spaces < 1) spaces = 1;
-      return left + " ".repeat(spaces) + right;
-    }
-
-    function buildReceiptText() {
-      const biz = document.getElementById("biz").value.trim().toUpperCase() || "BUSINESS NAME";
-      const date = document.getElementById("date").value.trim() || "";
-      const time = document.getElementById("time").value.trim() || "";
-      const order = document.getElementById("order").value.trim() || "";
-      const itemsRaw = document.getElementById("items").value;
-      const taxRate = parseFloat(document.getElementById("tax").value || "0");
-      const footer = document.getElementById("footer").value.trim().toUpperCase() || "";
-
-      const lines = itemsRaw.split("\n").map(line => line.trim()).filter(line => line.length > 0);
-
-      let subtotal = 0;
-      let output = "";
-
-      output += biz + "\n\n";
-      output += "DATE: " + date + "\n";
-      output += "TIME: " + time + "\n";
-      output += "ORDER: " + order + "\n\n";
-
-      lines.forEach(line => {
-        const parts = line.split("|");
-        const name = (parts[0] || "").trim();
-        const price = parseFloat((parts[1] || "").trim());
-
-        if (!name || isNaN(price)) return;
-
-        subtotal += price;
-        output += itemLine(name, price) + "\n";
+      rows.forEach(r=>{
+        let p=r.split("|");
+        if(p.length<2)return;
+        let name=p[0].trim();
+        let price=parseFloat(p[1].trim());
+        if(!name||isNaN(price))return;
+        subtotal+=price;
+        out+=lineFormat(name,price)+"\n";
       });
 
-      const taxAmount = subtotal * (taxRate / 100);
-      const total = subtotal + taxAmount;
+      let taxAmt=subtotal*(tax/100);
+      let total=subtotal+taxAmt;
+      out+="\n"+lineFormat("SUBTOTAL",subtotal)+"\n";
+      out+=lineFormat("TAX",taxAmt)+"\n";
+      out+=lineFormat("TOTAL",total)+"\n";
+      if(footer)out+="\n"+footer;
+      return out;
+    }
 
-      output += "\n";
-      output += moneyLine("SUBTOTAL", subtotal) + "\n";
-      output += moneyLine("TAX", taxAmount) + "\n";
-      output += moneyLine("TOTAL", total) + "\n";
+    document.getElementById("generateBtn").onclick=()=>{preview.textContent=buildReceipt();};
+    document.getElementById("downloadTxtBtn").onclick=()=>{
+      let blob=new Blob([buildReceipt()],{type:"text/plain"});
+      let a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);
+      a.download="receipt.txt";
+      a.click();
+    };
 
-      if (footer) {
-        output += "\n" + footer;
+    const canvas=document.getElementById("canvas");
+    const ctx=canvas.getContext("2d");
+    let baseImage=null;
+    let lines=[];
+    let selected=-1;
+    let dragging=false,offX=0,offY=0;
+
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      if(baseImage){
+        ctx.drawImage(baseImage,0,0,canvas.width,canvas.height);
+      }else{
+        ctx.fillStyle="#fafafa";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle="#777";
+        ctx.font="24px Arial";
+        ctx.fillText("Upload a receipt screenshot.",40,60);
       }
 
-      return output;
+      lines.forEach((l,i)=>{
+        ctx.fillStyle="#fff";
+        ctx.fillRect(l.x,l.y,l.w,l.h);
+        ctx.fillStyle="#111";
+        ctx.font=l.size+'px Courier New';
+        ctx.textBaseline="top";
+        ctx.fillText(l.text,l.x+6,l.y+4);
+        if(i===selected){
+          ctx.strokeStyle="#2b7cff";
+          ctx.lineWidth=2;
+          ctx.strokeRect(l.x,l.y,l.w,l.h);
+        }
+      });
+      renderList();
     }
 
-    function generateReceipt() {
-      preview.textContent = buildReceiptText();
+    function renderList(){
+      let box=document.getElementById("lineList");
+      box.innerHTML="";
+      lines.forEach((l,i)=>{
+        let d=document.createElement("div");
+        d.className="lineItem"+(i===selected?" active":"");
+        d.textContent="Line "+(i+1)+": "+l.text;
+        d.onclick=()=>{
+          selected=i;
+          syncInputs();
+          draw();
+        };
+        box.appendChild(d);
+      });
     }
 
-    function downloadTextFile() {
-      const text = buildReceiptText();
-      const blob = new Blob([text], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "receipt.txt";
-      a.click();
-      URL.revokeObjectURL(url);
+    function syncInputs(){
+      if(selected<0||!lines[selected])return;
+      let l=lines[selected];
+      document.getElementById("lineText").value=l.text;
+      document.getElementById("fontSize").value=l.size;
+      document.getElementById("boxWidth").value=l.w;
+      document.getElementById("boxHeight").value=l.h;
+      document.getElementById("lineX").value=Math.round(l.x);
+      document.getElementById("lineY").value=Math.round(l.y);
     }
 
-    document.getElementById("generateBtn").addEventListener("click", generateReceipt);
-    document.getElementById("downloadTxtBtn").addEventListener("click", downloadTextFile);
-    generateReceipt();
+    document.getElementById("imageUpload").onchange=e=>{
+      let file=e.target.files[0];
+      if(!file)return;
+      let reader=new FileReader();
+      reader.onload=ev=>{
+        let img=new Image();
+        img.onload=()=>{
+          baseImage=img;
+          canvas.width=img.width;
+          canvas.height=img.height;
+          lines=[];
+          selected=-1;
+          draw();
+        };
+        img.src=ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
 
-    const canvas = document.getElementById("receiptCanvas");
-    const ctx = canvas.getContext("2d");
-    const imageUpload = document.getElementById("imageUpload");
-    const editorStatus = document.getElementById("editorStatus");
-    const lineList = document.getElementById("lineList");
-    const zoomValue = document.getElementById("zoomValue");
-    const canvasContainer = document.getElementById("canvasContainer");
+    document.getElementById("addLineBtn").onclick=()=>{
+      if(!baseImage)return;
+      lines.push({x:40,y:40,w:260,h:34,size:26,text:"NEW LINE 20.00"});
+      selected=lines.length-1;
+      syncInputs();
+      draw();
+    };
 
-    const lineTextInput = document.getElementById("lineText");
-    const fontSizeInput = document.getElementById("fontSize");
-    const fontFamilyInput = document.getElementById("fontFamily");
-    const textColorInput = document.getElementById("textColor");
-    const boxColorInput = document.getElementById("boxColor");
-    const boxWidthInput = document.getElementById("boxWidth");
-    const boxHeightInput = document.getElementById("boxHeight");
-    const lineXInput = document.getElementById("lineX");
-    const lineYInput = document.getElementById("lineY");
+    document.getElementById("deleteLineBtn").onclick=()=>{
+      if(selected<0)return;
+      lines.splice(selected,1);
+      selected=lines.length?0:-1;
+      syncInputs();
+      draw();
+    };
 
-    let baseImage = null;
-    let lines = [];
-    let selectedLineIndex = -1;
+    ["lineText","fontSize","boxWidth","boxHeight","lineX","lineY"].forEach(id=>{
+      document.getElementById(id).oninput=()=>{
+        if(selected<0||!lines[selected])return;
+        let l=lines[selected];
+        l.text=document.getElementById("lineText").value;
+        l.size=parseInt(document.getElementById("fontSize").value||"26");
+        l.w=parseInt(document.getElementById("boxWidth").value||"260");
+        l.h=parseInt(document.getElementById("boxHeight").value||"34");
+        l.x=parseFloat(document.getElementById("lineX").value||"40");
+        l.y=parseFloat(document.getElementById("lineY").value||"40");
+        draw();
+      };
+    });
 
-    let viewScale = 1;
-    let minScale = 0.25;
-    let maxScale = 6;
-    let panX = 0;
-    let panY = 0;
-
-    let isDraggingLine = false;
-    let isPanning = false;
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
-    let panStartX = 0;
-    let panStartY = 0;
-    let panOriginX = 0;
-    let panOriginY = 0;
-
-    let pinchStartDistance = 0;
-    let pinchStartScale = 1;
-    let pinchCenterStart = null;
-
-    function setStatus(text) {
-      editorStatus.textContent = text;
-    }
-
-    function clamp(value, min, max) {
-      return Math.max(min, Math.min(max, value));
-    }
-
-    function updateZoomLabel() {
-      zoomValue.textContent = Math.round(viewScale * 100) + "%";
-    }
-
-    function resizeCanvasToImage(img) {
-      canvas.width = img.width;
-      canvas.height = img.height;
-    }
-
-    function fitToScreen() {
-      if (!baseImage) return;
-      const pad = 30;
-      const scaleX = (canvasContainer.clientWidth - pad) / canvas.width;
-      const scaleY = (canvasContainer.clientHeight - pad) / canvas.height;
-      viewScale = clamp(Math.min(scaleX, scaleY), minScale, maxScale);
-
-      const displayW = canvas.width * viewScale;
-      const displayH = canvas.height * viewScale;
-
-      panX = (canvasContainer.clientWidth - displayW) / 2;
-      panY = (canvasContainer.clientHeight - displayH) / 2;
-
-      applyCanvasTransform();
-      drawCanvas();
-    }
-
-    function resetView() {
-      fitToScreen();
-    }
-
-    function applyCanvasTransform() {
-      canvas.style.transformOrigin = "0 0";
-      canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${viewScale})`;
-      updateZoomLabel();
-    }
-
-    function createLine(defaultText = "NEW LINE 20.00") {
+    function pos(evt){
+      const rect=canvas.getBoundingClientRect();
       return {
-        x: 40,
-        y: 40,
-        w: 260,
-        h: 34,
-        text: defaultText,
-        fontSize: 26,
-        fontFamily: "Courier New",
-        textColor: "#111111",
-        boxColor: "#ffffff"
+        x:(evt.clientX-rect.left)*(canvas.width/rect.width),
+        y:(evt.clientY-rect.top)*(canvas.height/rect.height)
       };
     }
 
-    function renderLineList() {
-      lineList.innerHTML = "";
-
-      if (!lines.length) {
-        lineList.innerHTML = '<div class="small">No lines yet.</div>';
-        return;
+    function hit(x,y){
+      for(let i=lines.length-1;i>=0;i--){
+        let l=lines[i];
+        if(x>=l.x&&x<=l.x+l.w&&y>=l.y&&y<=l.y+l.h)return i;
       }
-
-      lines.forEach((line, index) => {
-        const item = document.createElement("div");
-        item.className = "line-item" + (index === selectedLineIndex ? " active" : "");
-        item.innerHTML = `
-          <div class="line-item-title">Line ${index + 1}</div>
-          <div class="line-item-text">${escapeHtml(line.text)}</div>
-        `;
-        item.addEventListener("click", function () {
-          selectedLineIndex = index;
-          syncControlsFromSelected();
-          drawCanvas();
-          renderLineList();
-        });
-        lineList.appendChild(item);
-      });
+      return -1;
     }
 
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-    }
-
-    function syncControlsFromSelected() {
-      if (selectedLineIndex < 0 || !lines[selectedLineIndex]) {
-        lineTextInput.value = "";
-        return;
+    canvas.onmousedown=e=>{
+      let p=pos(e);
+      let i=hit(p.x,p.y);
+      if(i>=0){
+        selected=i;
+        offX=p.x-lines[i].x;
+        offY=p.y-lines[i].y;
+        dragging=true;
+        syncInputs();
+        draw();
       }
+    };
 
-      const line = lines[selectedLineIndex];
-      lineTextInput.value = line.text;
-      fontSizeInput.value = line.fontSize;
-      fontFamilyInput.value = line.fontFamily;
-      textColorInput.value = line.textColor;
-      boxColorInput.value = line.boxColor;
-      boxWidthInput.value = line.w;
-      boxHeightInput.value = line.h;
-      lineXInput.value = Math.round(line.x);
-      lineYInput.value = Math.round(line.y);
-    }
+    window.onmousemove=e=>{
+      if(!dragging||selected<0)return;
+      let p=pos(e);
+      let l=lines[selected];
+      l.x=p.x-offX;
+      l.y=p.y-offY;
+      syncInputs();
+      draw();
+    };
 
-    function applyControlsToSelected() {
-      if (selectedLineIndex < 0 || !lines[selectedLineIndex]) return;
+    window.onmouseup=()=>{dragging=false;};
 
-      const line = lines[selectedLineIndex];
-      line.text = lineTextInput.value || "";
-      line.fontSize = parseInt(fontSizeInput.value || "26", 10);
-      line.fontFamily = fontFamilyInput.value || "Courier New";
-      line.textColor = textColorInput.value || "#111111";
-      line.boxColor = boxColorInput.value || "#ffffff";
-      line.w = parseInt(boxWidthInput.value || "260", 10);
-      line.h = parseInt(boxHeightInput.value || "34", 10);
-      line.x = parseFloat(lineXInput.value || "0");
-   
+    document.getElementById("downloadBtn").onclick=()=>{
+      let a=document.createElement("a");
+      a.href=canvas.toDataURL("image/png");
+      a.download="edited-receipt.png";
+      a.click();
+    };
+
+    draw();
+  </script>
+</body>
+                </html>
