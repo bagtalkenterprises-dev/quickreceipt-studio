@@ -13,7 +13,7 @@
       color:#111;
     }
     .app{
-      max-width:420px;
+      max-width:440px;
       margin:0 auto;
       background:#fff;
       padding:20px;
@@ -23,6 +23,11 @@
     h2{
       margin:0 0 16px 0;
       font-size:24px;
+    }
+    .label{
+      font-size:14px;
+      font-weight:700;
+      margin-top:8px;
     }
     input, textarea, button{
       width:100%;
@@ -38,7 +43,7 @@
       color:#000;
     }
     textarea{
-      min-height:120px;
+      min-height:110px;
       resize:vertical;
     }
     button{
@@ -57,12 +62,8 @@
       font-family:"Courier New", monospace;
       white-space:pre-wrap;
       border-radius:10px;
-      min-height:120px;
-    }
-    .label{
-      font-size:14px;
-      font-weight:700;
-      margin-top:8px;
+      min-height:240px;
+      line-height:1.2;
     }
   </style>
 </head>
@@ -73,14 +74,20 @@
     <div class="label">Business Name</div>
     <input id="name" value="ASHLEY CUSTOM DESIGNS">
 
-    <div class="label">Date</div>
-    <input id="date" value="03/15/2026">
+    <div class="label">City, State</div>
+    <input id="location" value="ORANGE, TX">
 
-    <div class="label">Time</div>
-    <input id="time" value="03:45 PM">
+    <div class="label">Store Number</div>
+    <input id="store" value="001">
 
-    <div class="label">Order Number</div>
-    <input id="order" value="1001">
+    <div class="label">Operator Number</div>
+    <input id="operator" value="1001">
+
+    <div class="label">Terminal Number</div>
+    <input id="terminal" value="1">
+
+    <div class="label">Transaction Number</div>
+    <input id="transaction" value="1001">
 
     <div class="label">Items (one per line: ITEM NAME|PRICE)</div>
     <textarea id="items">CUSTOM SHIRT|20
@@ -90,8 +97,20 @@ STICKER PACK|5</textarea>
     <div class="label">Tax Rate (%)</div>
     <input id="tax" value="8.25">
 
-    <div class="label">Footer</div>
-    <input id="footer" value="THANK YOU FOR YOUR BUSINESS">
+    <div class="label">Tender Label</div>
+    <input id="tenderLabel" value="CARD TEND">
+
+    <div class="label">Footer Lines (one per line)</div>
+    <textarea id="footer">THANK YOU FOR SUPPORTING
+A SMALL BUSINESS
+RETURNS WITH RECEIPT
+WITHIN 30 DAYS</textarea>
+
+    <div class="label">Date</div>
+    <input id="date" value="03/15/26">
+
+    <div class="label">Time</div>
+    <input id="time" value="03:45:00">
 
     <button id="generateBtn" type="button">Generate</button>
 
@@ -99,66 +118,77 @@ STICKER PACK|5</textarea>
   </div>
 
   <script>
-    function formatLine(left, right) {
+    function padLine(left, right, width = 32) {
       left = String(left).toUpperCase();
-      right = Number(right).toFixed(2);
-      let spaces = 32 - left.length - right.length;
+      right = String(right);
+      let spaces = width - left.length - right.length;
       if (spaces < 1) spaces = 1;
       return left + " ".repeat(spaces) + right;
     }
 
+    function money(n) {
+      return Number(n).toFixed(2);
+    }
+
     function genReceipt() {
-      const nameEl = document.getElementById("name");
-      const dateEl = document.getElementById("date");
-      const timeEl = document.getElementById("time");
-      const orderEl = document.getElementById("order");
-      const itemsEl = document.getElementById("items");
-      const taxEl = document.getElementById("tax");
-      const footerEl = document.getElementById("footer");
+      const name = (document.getElementById("name").value || "").toUpperCase();
+      const location = (document.getElementById("location").value || "").toUpperCase();
+      const store = document.getElementById("store").value || "";
+      const operator = document.getElementById("operator").value || "";
+      const terminal = document.getElementById("terminal").value || "";
+      const transaction = document.getElementById("transaction").value || "";
+      const itemsRaw = document.getElementById("items").value || "";
+      const taxRate = parseFloat(document.getElementById("tax").value || "0");
+      const tenderLabel = (document.getElementById("tenderLabel").value || "CARD TEND").toUpperCase();
+      const footer = (document.getElementById("footer").value || "").toUpperCase();
+      const date = document.getElementById("date").value || "";
+      const time = document.getElementById("time").value || "";
       const outEl = document.getElementById("out");
 
-      const name = (nameEl.value || "").toUpperCase();
-      const date = dateEl.value || "";
-      const time = timeEl.value || "";
-      const order = orderEl.value || "";
-      const taxRate = parseFloat(taxEl.value || "0");
-      const footer = (footerEl.value || "").toUpperCase();
+      const rows = itemsRaw.split("\n").map(v => v.trim()).filter(Boolean);
 
-      const rows = (itemsEl.value || "").split("\n");
       let subtotal = 0;
-
+      let itemCount = 0;
       let txt = "";
-      txt += name + "\n\n";
-      txt += "DATE: " + date + "\n";
-      txt += "TIME: " + time + "\n";
-      txt += "ORDER: " + order + "\n\n";
+
+      txt += name + "\n";
+      txt += location + "\n";
+      txt += `ST# ${store} OP# ${operator} TE# ${terminal} TR# ${transaction}\n\n`;
 
       rows.forEach(function(row) {
         const parts = row.split("|");
         if (parts.length < 2) return;
 
-        const itemName = (parts[0] || "").trim();
+        const itemName = (parts[0] || "").trim().toUpperCase();
         const itemPrice = parseFloat((parts[1] || "").trim());
 
         if (!itemName || isNaN(itemPrice)) return;
 
         subtotal += itemPrice;
-        txt += formatLine(itemName, itemPrice) + "\n";
+        itemCount += 1;
+        txt += padLine(itemName, money(itemPrice)) + "\n";
       });
 
       const taxAmount = subtotal * (taxRate / 100);
       const total = subtotal + taxAmount;
 
       txt += "\n";
-      txt += formatLine("SUBTOTAL", subtotal) + "\n";
-      txt += formatLine("TAX", taxAmount) + "\n";
-      txt += formatLine("TOTAL", total) + "\n\n";
-      txt += footer;
+      txt += padLine("SUBTOTAL", money(subtotal)) + "\n";
+      txt += padLine(`TAX 1  ${taxRate.toFixed(2)} %`, money(taxAmount)) + "\n";
+      txt += padLine("TOTAL", money(total)) + "\n\n";
+      txt += padLine(tenderLabel, money(total)) + "\n";
+      txt += padLine("CHANGE DUE", money(0)) + "\n\n";
+      txt += `# ITEMS SOLD ${itemCount}\n\n`;
+      txt += `${date} ${time}\n\n`;
 
-      outEl.textContent = txt;
+      footer.split("\n").forEach(function(line) {
+        if (line.trim()) txt += line.trim().toUpperCase() + "\n";
+      });
+
+      outEl.textContent = txt.trimEnd();
     }
 
     document.getElementById("generateBtn").addEventListener("click", genReceipt);
   </script>
 </body>
-</html>
+  </html>
