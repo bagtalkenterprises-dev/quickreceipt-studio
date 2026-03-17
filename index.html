@@ -1,194 +1,500 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuickReceipt Studio</title>
-
-<style>
-body {
-  font-family: Arial;
-  padding: 10px;
-  background: #f5f5f5;
-}
-
-.container {
-  max-width: 400px;
-  margin: auto;
-}
-
-input, textarea, select, button {
-  width: 100%;
-  margin: 6px 0;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-button {
-  background: black;
-  color: white;
-  font-weight: bold;
-}
-
-canvas {
-  width: 100%;
-  background: white;
-  border: 1px solid #ccc;
-  touch-action: none;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<h2>Receipt Editor</h2>
-
-<input type="file" id="upload">
-
-<button onclick="addLayer()">Add Text</button>
-
-<textarea id="text">NEW TEXT</textarea>
-
-<input id="size" type="number" value="24">
-
-<select id="weight">
-  <option>normal</option>
-  <option selected>bold</option>
-</select>
-
-<button onclick="applyChanges()">Apply Changes</button>
-<button onclick="download()">Download PNG</button>
-
-<canvas id="canvas"></canvas>
-
-</div>
-
-<script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
-let img = new Image();
-let layers = [];
-let selected = -1;
-
-let scale = 1;
-let offsetX = 0;
-let offsetY = 0;
-
-canvas.width = 350;
-canvas.height = 600;
-
-document.getElementById("upload").onchange = e => {
-  const file = e.target.files[0];
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    img.onload = draw;
-    img.src = reader.result;
-  };
-
-  reader.readAsDataURL(file);
-};
-
-function addLayer() {
-  layers.push({
-    text: "NEW TEXT",
-    x: 50,
-    y: 50,
-    size: 24,
-    weight: "bold"
-  });
-  selected = layers.length - 1;
-  draw();
-}
-
-function applyChanges() {
-  if (selected < 0) return;
-
-  let l = layers[selected];
-
-  l.text = document.getElementById("text").value;
-  l.size = parseInt(document.getElementById("size").value);
-  l.weight = document.getElementById("weight").value;
-
-  draw();
-}
-
-function draw() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  if (img.src) {
-    ctx.drawImage(img, offsetX, offsetY, img.width*scale, img.height*scale);
-  }
-
-  layers.forEach((l,i)=>{
-    ctx.font = l.weight + " " + l.size + "px monospace";
-    ctx.fillStyle = "black";
-    ctx.fillText(l.text, l.x, l.y);
-  });
-}
-
-let dragging = false;
-let dragLayer = false;
-let startX, startY;
-
-canvas.addEventListener("mousedown", e=>{
-  startX = e.offsetX;
-  startY = e.offsetY;
-
-  dragLayer = false;
-
-  layers.forEach((l,i)=>{
-    if (
-      startX > l.x-50 && startX < l.x+200 &&
-      startY > l.y-20 && startY < l.y+20
-    ){
-      selected = i;
-      dragLayer = true;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickReceipt Studio</title>
+  <style>
+    body{
+      margin:0;
+      padding:18px;
+      font-family:Arial,sans-serif;
+      background:#f3f3f3;
+      color:#111;
     }
-  });
+    .app{
+      max-width:1100px;
+      margin:0 auto;
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:24px;
+      padding:18px;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:28px;
+    }
+    .sub{
+      color:#666;
+      margin-bottom:18px;
+    }
+    .tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+    .tab,.btn{
+      border:1px solid #ddd;
+      background:#f3f3f3;
+      color:#111;
+      border-radius:14px;
+      padding:12px 16px;
+      font-size:15px;
+      cursor:pointer;
+    }
+    .tab.active{
+      background:#111;
+      color:#fff;
+      border-color:#111;
+    }
+    .section{display:none}
+    .section.active{display:block}
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      }
+    .label{
+      font-size:13px;
+      font-weight:700;
+      margin:12px 0 6px;
+    }
+    input,textarea,select{
+      width:100%;
+      border:1px solid #ddd;
+      background:#fff;
+      color:#000;
+      border-radius:12px;
+      padding:12px;
+      font-size:15px;
+      box-sizing:border-box;
+    }
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+    .preview{
+      margin-top:18px;
+      padding:16px;
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:12px;
+      white-space:pre-wrap;
+      font-family:"Courier New", monospace;
+      font-weight:700;
+      letter-spacing:.5px;
+      text-shadow:.3px .3px 0 #000;
+      line-height:1.2;
+      min-height:240px;
+      color:#000;
+    }
+    .editor{
+      display:grid;
+      grid-template-columns:320px 1fr;
+      gap:16px;
+      align-items:start;
+      }
+    .panel{
+      border:1px solid #ddd;
+      border-radius:18px;
+      padding:14px;
+      background:#fafafa;
+    }
+    .stageWrap{
+      border:1px solid #ddd;
+      border-radius:18px;
+      padding:12px;
+      background:#fff;
+    }
+    .toolbar{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+      align-items:center;
+    }
+    .status{
+      margin-top:10px;
+      font-size:13px;
+      color:#444;
+    }
+    canvas{
+      display:block;
+      max-width:100%;
+      background:#fff;
+      border:1px solid #ddd;
+      touch-action:none;
+    }
+    .small{
+      font-size:12px;
+      color:#666;
+      line-height:1.4;
+      margin-top:10px;
+      }
+    @media (max-width:900px){
+      .editor,.grid2{grid-template-columns:1fr}
+      h1{font-size:24px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>QuickReceipt Studio</h1>
+    <div class="sub">Receipt generator + basic receipt image editor.</div>
 
-  dragging = true;
-});
+    <div class="tabs">
+      <button class="tab active" id="tabCreate" type="button">Create Receipt</button>
+      <button class="tab" id="tabEdit" type="button">Edit Receipt</button>
+    </div>
 
-canvas.addEventListener("mousemove", e=>{
-  if (!dragging) return;
+    <div id="sectionCreate" class="section active">
+      <div class="grid2">
+        <div>
+          <div class="label">Business Name</div>
+          <input id="name" value="ASHLEY CUSTOM DESIGNS">
 
-  let dx = e.offsetX - startX;
-  let dy = e.offsetY - startY;
+          <div class="label">Location</div>
+          <input id="location" value="ORANGE, TX">
 
-  startX = e.offsetX;
-  startY = e.offsetY;
+          <div class="grid2">
+            <div>
+              <div class="label">ST#</div>
+              <input id="store" value="001">
+            </div>
+            <div>
+              <div class="label">OP#</div>
+              <input id="operator" value="1001">
+            </div>
+          </div>
+          <div class="grid2">
+            <div>
+              <div class="label">TE#</div>
+              <input id="terminal" value="1">
+            </div>
+            <div>
+              <div class="label">TR#</div>
+              <input id="transaction" value="1001">
+            </div>
+          </div>
 
-  if (dragLayer && selected >= 0) {
-    layers[selected].x += dx;
-    layers[selected].y += dy;
-  } else {
-    offsetX += dx;
-    offsetY += dy;
-  }
+          <div class="label">Items (one per line: ITEM NAME|PRICE)</div>
+          <textarea id="items">CUSTOM SHIRT|20
+LOGO PRINT|15
+STICKER PACK|5</textarea>
+        </div>
 
-  draw();
-});
+        <div>
+          <div class="label">Tax Rate (%)</div>
+          <input id="tax" value="8.25">
 
-canvas.addEventListener("mouseup", ()=> dragging=false);
+          <div class="label">Tender Label</div>
+          <input id="tender" value="CARD TEND">
 
-canvas.addEventListener("wheel", e=>{
-  e.preventDefault();
-  scale += e.deltaY * -0.001;
-  scale = Math.min(Math.max(0.5, scale), 3);
-  draw();
-});
+          <div class="label">Footer Lines (one per line)</div>
+          <textarea id="footer">THANK YOU FOR SUPPORTING
+A SMALL BUSINESS
+RETURNS WITH RECEIPT
+WITHIN 30 DAYS</textarea>
+  <div class="grid2">
+            <div>
+              <div class="label">Date</div>
+              <input id="date" value="03/15/26">
+            </div>
+            <div>
+              <div class="label">Time</div>
+              <input id="time" value="03:45:00">
+            </div>
+          </div>
 
-function download(){
-  let link = document.createElement("a");
-  link.download = "receipt.png";
-  link.href = canvas.toDataURL();
-  link.click();
-}
-</script>
+          <div class="toolbar" style="margin-top:16px">
+            <button class="btn" id="generateBtn" type="button">Generate</button>
+          </div>
 
+          <div class="preview" id="receiptOutput">Press Generate</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sectionEdit" class="section">
+      <div class="editor">
+        <div class="panel">
+          <div class="label">Upload Receipt Image</div>
+          <input type="file" id="uploadImage" accept="image/*">
+
+          <div class="toolbar" style="margin-top:12px">
+            <button class="btn" id="addTextBtn" type="button">Add Text</button>
+            <button class="btn" id="applyBtn" type="button">Apply Changes</button>
+            <button class="btn" id="downloadBtn" type="button">Download PNG</button>
+          </div>
+
+          <div class="label">Selected Text</div>
+          <textarea id="layerText">NEW TEXT 20.00</textarea>
+          <div class="grid2">
+            <div>
+              <div class="label">Font Size</div>
+              <input id="fontSize" type="number" value="24">
+            </div>
+            <div>
+              <div class="label">Font Weight</div>
+              <select id="fontWeight">
+                <option value="normal">normal</option>
+                <option value="bold" selected>bold</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="status" id="status">Upload an image to start.</div>
+
+          <div class="small">
+            Upload image → Add Text → drag text on the canvas → Apply Changes → Download PNG.
+          </div>
+        </div>
+        <div class="stageWrap">
+          <canvas id="editorCanvas" width="700" height="1000"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tabCreate = document.getElementById("tabCreate");
+    const tabEdit = document.getElementById("tabEdit");
+    const sectionCreate = document.getElementById("sectionCreate");
+    const sectionEdit = document.getElementById("sectionEdit");
+
+    tabCreate.onclick = () => {
+      tabCreate.classList.add("active");
+      tabEdit.classList.remove("active");
+      sectionCreate.classList.add("active");
+      sectionEdit.classList.remove("active");
+    };
+
+    tabEdit.onclick = () => {
+      tabEdit.classList.add("active");
+      tabCreate.classList.remove("active");
+      sectionEdit.classList.add("active");
+      sectionCreate.classList.remove("active");
+    };
+
+    function padLine(left, right, width = 32) {
+      left = String(left).toUpperCase();
+      right = String(right);
+      let spaces = width - left.length - right.length;
+      if (spaces < 1) spaces = 1;
+      return left + " ".repeat(spaces) + right;
+    }
+
+    function money(n) {
+      return Number(n).toFixed(2);
+      }
+
+    function buildReceiptText() {
+      const name = (document.getElementById("name").value || "").toUpperCase();
+      const location = (document.getElementById("location").value || "").toUpperCase();
+      const store = document.getElementById("store").value || "";
+      const operator = document.getElementById("operator").value || "";
+      const terminal = document.getElementById("terminal").value || "";
+      const transaction = document.getElementById("transaction").value || "";
+      const itemsRaw = document.getElementById("items").value || "";
+      const taxRate = parseFloat(document.getElementById("tax").value || "0");
+      const tender = (document.getElementById("tender").value || "CARD TEND").toUpperCase();
+      const footer = (document.getElementById("footer").value || "").toUpperCase();
+      const date = document.getElementById("date").value || "";
+      const time = document.getElementById("time").value || "";
+
+      const rows = itemsRaw.split("\n").map(v => v.trim()).filter(Boolean);
+      let subtotal = 0;
+      let count = 0;
+      let txt = "";
+
+      txt += name + "\n";
+      txt += location + "\n";
+      txt += `ST# ${store} OP# ${operator} TE# ${terminal} TR# ${transaction}\n\n`;
+      rows.forEach(row => {
+        const parts = row.split("|");
+        if (parts.length < 2) return;
+        const itemName = (parts[0] || "").trim().toUpperCase();
+        const itemPrice = parseFloat((parts[1] || "").trim());
+        if (!itemName || isNaN(itemPrice)) return;
+        subtotal += itemPrice;
+        count += 1;
+        txt += padLine(itemName, money(itemPrice)) + "\n";
+      });
+
+      const taxAmount = subtotal * (taxRate / 100);
+      const total = subtotal + taxAmount;
+
+      txt += "\n";
+      txt += padLine("SUBTOTAL", money(subtotal)) + "\n";
+      txt += padLine(`TAX 1  ${taxRate.toFixed(2)} %`, money(taxAmount)) + "\n";
+      txt += padLine("TOTAL", money(total)) + "\n\n";
+      txt += padLine(tender, money(total)) + "\n";
+      txt += padLine("CHANGE DUE", money(0)) + "\n\n";
+      txt += `# ITEMS SOLD ${count}\n\n`;
+      txt += `${date} ${time}\n\n`;
+
+      footer.split("\n").forEach(line => {
+        if (line.trim()) txt += line.trim().toUpperCase() + "\n";
+      });
+
+      return txt.trimEnd();
+    }
+
+    document.getElementById("generateBtn").onclick = () => {
+      document.getElementById("receiptOutput").textContent = buildReceiptText();
+      };
+
+    const canvas = document.getElementById("editorCanvas");
+    const ctx = canvas.getContext("2d");
+    const statusEl = document.getElementById("status");
+
+    let img = new Image();
+    let hasImage = false;
+    let layers = [];
+    let selected = -1;
+    let dragging = false;
+    let dragLayer = false;
+    let startX = 0;
+    let startY = 0;
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function setStatus(text){
+      statusEl.textContent = text;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (hasImage) {
+        ctx.drawImage(img, offsetX, offsetY, img.width * scale, img.height * scale);
+      } else {
+        ctx.fillStyle = "#fafafa";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+      }
+
+      layers.forEach((l, i) => {
+        ctx.font = `${l.weight} ${l.size}px monospace`;
+        ctx.fillStyle = "#000";
+        ctx.fillText(l.text, l.x, l.y);
+        if (i === selected) {
+          const w = ctx.measureText(l.text).width + 10;
+          ctx.strokeStyle = "#2b7cff";
+          ctx.strokeRect(l.x - 5, l.y - l.size, w, l.size + 10);
+        }
+      });
+    }
+
+    document.getElementById("uploadImage").onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        img.onload = () => {
+          hasImage = true;
+          scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+          offsetX = 0;
+          offsetY = 0;
+          draw();
+          setStatus("Image loaded.");
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    document.getElementById("addTextBtn").onclick = () => {
+      layers.push({
+        text: "NEW TEXT 20.00",
+        x: 50,
+        y: 50,
+        size: 24,
+        weight: "bold"
+      });
+      selected = layers.length - 1;
+      document.getElementById("layerText").value = layers[selected].text;
+      document.getElementById("fontSize").value = layers[selected].size;
+      document.getElementById("fontWeight").value = layers[selected].weight;
+      draw();
+      setStatus("Text layer added.");
+      }
+      layers[selected].text = document.getElementById("layerText").value;
+      layers[selected].size = parseInt(document.getElementById("fontSize").value || "24", 10);
+      layers[selected].weight = document.getElementById("fontWeight").value;
+      draw();
+      setStatus("Changes applied.");
+    };
+
+    document.getElementById("downloadBtn").onclick = () => {
+      const link = document.createElement("a");
+      link.download = "receipt-edit.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+
+    function hitLayer(x, y) {
+      for (let i = layers.length - 1; i >= 0; i--) {
+        const l = layers[i];
+        ctx.font = `${l.weight} ${l.size}px monospace`;
+        const w = ctx.measureText(l.text).width;
+        if (x >= l.x - 5 && x <= l.x + w + 5 && y >= l.y - l.size && y <= l.y + 8) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    canvas.addEventListener("mousedown", e => {
+      startX = e.offsetX;
+      startY = e.offsetY;
+      dragLayer = false;
+
+      const hit = hitLayer(startX, startY);
+      if (hit >= 0) {
+        selected = hit;
+        dragLayer = true;
+        document.getElementById("layerText").value = layers[selected].text;
+        document.getElementById("fontSize").value = layers[selected].size;
+        document.getElementById("fontWeight").value = layers[selected].weight;
+      }
+      dragging = true;
+      draw();
+    });
+
+    canvas.addEventListener("mousemove", e => {
+      if (!dragging) return;
+
+      const dx = e.offsetX - startX;
+      const dy = e.offsetY - startY;
+      startX = e.offsetX;
+      startY = e.offsetY;
+
+      if (dragLayer && selected >= 0) {
+        layers[selected].x += dx;
+        layers[selected].y += dy;
+      } else if (hasImage) {
+        offsetX += dx;
+        offsetY += dy;
+      }
+      draw();
+    });
+
+    canvas.addEventListener("mouseup", () => dragging = false);
+    canvas.addEventListener("mouseleave", () => dragging = false);
+
+    canvas.addEventListener("wheel", e => {
+      e.preventDefault();
+      if (!hasImage) return;
+      scale += e.deltaY * -0.001;
+      if (scale < 0.2) scale = 0.2;
+      if (scale > 5) scale = 5;
+      draw();
+    });
+
+    draw();
+  </script>
 </body>
 </html>
