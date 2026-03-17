@@ -1,87 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuickReceipt</title>
-<style>
-body{font-family:Arial;background:#f3f3f3;padding:20px}
-.app{max-width:400px;margin:auto;background:#fff;padding:20px;border-radius:20px}
-input,textarea{width:100%;margin:10px 0;padding:10px;border-radius:10px;border:1px solid #ccc}
-button{padding:12px;border:none;border-radius:10px;background:#000;color:#fff;width:100%}
-.preview{
-  background:#fff;
-  color:#000;
-  font-family:"Courier New",monospace;
-  padding:15px;
-  margin-top:20px;
-  white-space:pre-wrap;
-  border:1px solid #ddd;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receipt Generator</title>
+  <style>
+    body{
+      margin:0;
+      padding:20px;
+      font-family:Arial, sans-serif;
+      background:#f3f3f3;
+      color:#111;
+    }
+    .app{
+      max-width:420px;
+      margin:0 auto;
+      background:#fff;
+      padding:20px;
+      border-radius:20px;
+      box-sizing:border-box;
+    }
+    h2{
+      margin:0 0 16px 0;
+      font-size:24px;
+    }
+    input, textarea, button{
+      width:100%;
+      box-sizing:border-box;
+      margin:10px 0;
+      padding:12px;
+      border-radius:10px;
+      font-size:16px;
+    }
+    input, textarea{
+      border:1px solid #ccc;
+      background:#fff;
+      color:#000;
+    }
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+    button{
+      border:none;
+      background:#000;
+      color:#fff;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .preview{
+      margin-top:20px;
+      padding:15px;
+      border:1px solid #ddd;
+      background:#fff;
+      color:#000;
+      font-family:"Courier New", monospace;
+      white-space:pre-wrap;
+      border-radius:10px;
+      min-height:120px;
+    }
+    .label{
+      font-size:14px;
+      font-weight:700;
+      margin-top:8px;
+    }
+  </style>
 </head>
-
 <body>
-<div class="app">
-<h2>Receipt Generator</h2>
+  <div class="app">
+    <h2>Receipt Generator</h2>
 
-<input id="name" value="ASHLEY CUSTOM DESIGNS">
-<input id="date" value="03/15/2026">
-<input id="time" value="03:45 PM">
-<input id="order" value="1001">
+    <div class="label">Business Name</div>
+    <input id="name" value="ASHLEY CUSTOM DESIGNS">
 
-<textarea id="items">CUSTOM SHIRT|20
+    <div class="label">Date</div>
+    <input id="date" value="03/15/2026">
+
+    <div class="label">Time</div>
+    <input id="time" value="03:45 PM">
+
+    <div class="label">Order Number</div>
+    <input id="order" value="1001">
+
+    <div class="label">Items (one per line: ITEM NAME|PRICE)</div>
+    <textarea id="items">CUSTOM SHIRT|20
 LOGO PRINT|15
 STICKER PACK|5</textarea>
 
-<input id="tax" value="8.25">
-<input id="footer" value="THANK YOU FOR YOUR BUSINESS">
+    <div class="label">Tax Rate (%)</div>
+    <input id="tax" value="8.25">
 
-<button onclick="gen()">Generate</button>
+    <div class="label">Footer</div>
+    <input id="footer" value="THANK YOU FOR YOUR BUSINESS">
 
-<div class="preview" id="out">Press Generate</div>
-</div>
+    <button id="generateBtn" type="button">Generate</button>
 
-<script>
-function line(a,b){
-a=a.toUpperCase()
-b=parseFloat(b).toFixed(2)
-let s=32-a.length-b.length
-if(s<1)s=1
-return a+" ".repeat(s)+b
-}
+    <div class="preview" id="out">Press Generate</div>
+  </div>
 
-function gen(){
-let n=name.value.toUpperCase()
-let d=date.value
-let t=time.value
-let o=order.value
-let tax=parseFloat(document.getElementById("tax").value||0)
-let f=footer.value.toUpperCase()
+  <script>
+    function formatLine(left, right) {
+      left = String(left).toUpperCase();
+      right = Number(right).toFixed(2);
+      let spaces = 32 - left.length - right.length;
+      if (spaces < 1) spaces = 1;
+      return left + " ".repeat(spaces) + right;
+    }
 
-let rows=items.value.split("\n")
-let sub=0
-let txt=n+"\n\nDATE: "+d+"\nTIME: "+t+"\nORDER: "+o+"\n\n"
+    function genReceipt() {
+      const nameEl = document.getElementById("name");
+      const dateEl = document.getElementById("date");
+      const timeEl = document.getElementById("time");
+      const orderEl = document.getElementById("order");
+      const itemsEl = document.getElementById("items");
+      const taxEl = document.getElementById("tax");
+      const footerEl = document.getElementById("footer");
+      const outEl = document.getElementById("out");
 
-rows.forEach(r=>{
-let p=r.split("|")
-if(p.length<2)return
-let nm=p[0]
-let pr=parseFloat(p[1])
-if(!nm||isNaN(pr))return
-sub+=pr
-txt+=line(nm,pr)+"\n"
-})
+      const name = (nameEl.value || "").toUpperCase();
+      const date = dateEl.value || "";
+      const time = timeEl.value || "";
+      const order = orderEl.value || "";
+      const taxRate = parseFloat(taxEl.value || "0");
+      const footer = (footerEl.value || "").toUpperCase();
 
-let taxAmt=sub*(tax/100)
-let total=sub+taxAmt
+      const rows = (itemsEl.value || "").split("\n");
+      let subtotal = 0;
 
-txt+="\n"+line("SUBTOTAL",sub)
-txt+="\n"+line("TAX",taxAmt)
-txt+="\n"+line("TOTAL",total)
-txt+="\n\n"+f
+      let txt = "";
+      txt += name + "\n\n";
+      txt += "DATE: " + date + "\n";
+      txt += "TIME: " + time + "\n";
+      txt += "ORDER: " + order + "\n\n";
 
-document.getElementById("out").textContent=txt
-}
-</script>
+      rows.forEach(function(row) {
+        const parts = row.split("|");
+        if (parts.length < 2) return;
+
+        const itemName = (parts[0] || "").trim();
+        const itemPrice = parseFloat((parts[1] || "").trim());
+
+        if (!itemName || isNaN(itemPrice)) return;
+
+        subtotal += itemPrice;
+        txt += formatLine(itemName, itemPrice) + "\n";
+      });
+
+      const taxAmount = subtotal * (taxRate / 100);
+      const total = subtotal + taxAmount;
+
+      txt += "\n";
+      txt += formatLine("SUBTOTAL", subtotal) + "\n";
+      txt += formatLine("TAX", taxAmount) + "\n";
+      txt += formatLine("TOTAL", total) + "\n\n";
+      txt += footer;
+
+      outEl.textContent = txt;
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", genReceipt);
+  </script>
 </body>
 </html>
