@@ -1,357 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuickReceipt Studio</title>
-  <style>
-    body{margin:0;padding:20px;font-family:Arial;background:#f3f3f3;color:#111}
-    .app{max-width:1100px;margin:auto;background:#fff;border:1px solid #ddd;border-radius:24px;padding:20px}
-    h1{margin:0 0 10px}
-    .sub{color:#666;margin-bottom:20px}
-    .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
-    .tab,.btn{border:1px solid #ddd;background:#f0f0f0;border-radius:14px;padding:12px 16px;font-size:16px;cursor:pointer}
-    .tab.active{background:#111;color:#fff;border-color:#111}
-    .section{display:none}
-    .section.active{display:block}
-    label{display:block;font-weight:700;margin:14px 0 8px}
-    input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:14px;font-size:16px;box-sizing:border-box}
-    textarea{min-height:120px;resize:vertical}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .preview{white-space:pre-wrap;font-family:"Courier New",monospace;border:1px solid #ddd;border-radius:14px;padding:16px;margin-top:20px;max-width:380px;background:#fff}
-    .editor{display:grid;grid-template-columns:340px 1fr;gap:20px}
-    .panel{border:1px solid #ddd;border-radius:18px;padding:16px;background:#fafafa}
-    .stage{border:1px solid #ddd;border-radius:18px;padding:12px;background:#fff;overflow:auto}
-    #canvas{border:1px solid #ddd;max-width:100%;background:#fff}
-    .lineList{margin-top:15px}
-    .lineItem{padding:8px;border:1px solid #ddd;border-radius:10px;background:#fff;margin-bottom:8px;cursor:pointer}
-    .lineItem.active{border-color:#111;background:#f2f2f2}
-    .small{font-size:13px;color:#666;margin-top:10px;line-height:1.4}
-    @media(max-width:900px){.editor,.row{grid-template-columns:1fr}}
-  </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuickReceipt</title>
+<style>
+body{font-family:Arial;background:#f3f3f3;padding:20px}
+.app{max-width:400px;margin:auto;background:#fff;padding:20px;border-radius:20px}
+input,textarea{width:100%;margin:10px 0;padding:10px;border-radius:10px;border:1px solid #ccc}
+button{padding:12px;border:none;border-radius:10px;background:#000;color:#fff;width:100%}
+.preview{
+  background:#fff;
+  color:#000;
+  font-family:"Courier New",monospace;
+  padding:15px;
+  margin-top:20px;
+  white-space:pre-wrap;
+  border:1px solid #ddd;
+}
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <h1>QuickReceipt Studio</h1>
-    <div class="sub">Create clean receipt-style text and edit your own receipt screenshots line by line.</div>
+<div class="app">
+<h2>Receipt Generator</h2>
 
-    <div class="tabs">
-      <button class="tab active" id="createTab">Create Receipt</button>
-      <button class="tab" id="editTab">Edit Screenshot</button>
-    </div>
+<input id="name" value="ASHLEY CUSTOM DESIGNS">
+<input id="date" value="03/15/2026">
+<input id="time" value="03:45 PM">
+<input id="order" value="1001">
 
-    <div id="createSection" class="section active">
-      <label>Business Name</label>
-      <input id="biz" value="ASHLEY CUSTOM DESIGNS">
+<textarea id="items">CUSTOM SHIRT|20
+LOGO PRINT|15
+STICKER PACK|5</textarea>
 
-      <div class="row">
-        <div>
-          <label>Date</label>
-          <input id="date" value="03/15/2026">
-        </div>
-        <div>
-          <label>Time</label>
-          <input id="time" value="03:45 PM">
-        </div>
-      </div>
+<input id="tax" value="8.25">
+<input id="footer" value="THANK YOU FOR YOUR BUSINESS">
 
-      <label>Order Number</label>
-      <input id="order" value="1001">
+<button onclick="gen()">Generate</button>
 
-      <label>Items (one per line: ITEM NAME | PRICE)</label>
-      <textarea id="items">CUSTOM SHIRT|20.00
-LOGO PRINT|15.00
-STICKER PACK|5.00</textarea>
+<div class="preview" id="out">Press Generate</div>
+</div>
 
-      <div class="row">
-        <div>
-          <label>Tax Rate (%)</label>
-          <input id="tax" value="8.25">
-        </div>
-        <div>
-          <label>Footer</label>
-          <input id="footer" value="THANK YOU FOR YOUR BUSINESS">
-        </div>
-      </div>
+<script>
+function line(a,b){
+a=a.toUpperCase()
+b=parseFloat(b).toFixed(2)
+let s=32-a.length-b.length
+if(s<1)s=1
+return a+" ".repeat(s)+b
+}
 
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
-        <button class="btn" id="generateBtn">Generate</button>
-        <button class="btn" id="downloadTxtBtn">Download TXT</button>
-      </div>
+function gen(){
+let n=name.value.toUpperCase()
+let d=date.value
+let t=time.value
+let o=order.value
+let tax=parseFloat(document.getElementById("tax").value||0)
+let f=footer.value.toUpperCase()
 
-      <div class="preview" id="receiptPreview">Press Generate to preview your receipt.</div>
-    </div>
+let rows=items.value.split("\n")
+let sub=0
+let txt=n+"\n\nDATE: "+d+"\nTIME: "+t+"\nORDER: "+o+"\n\n"
 
-    <div id="editSection" class="section">
-      <div class="editor">
-        <div class="panel">
-          <label>Upload Receipt Screenshot</label>
-          <input type="file" id="imageUpload" accept="image/*">
+rows.forEach(r=>{
+let p=r.split("|")
+if(p.length<2)return
+let nm=p[0]
+let pr=parseFloat(p[1])
+if(!nm||isNaN(pr))return
+sub+=pr
+txt+=line(nm,pr)+"\n"
+})
 
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
-            <button class="btn" id="addLineBtn">Add Line</button>
-            <button class="btn" id="deleteLineBtn">Delete Line</button>
-            <button class="btn" id="downloadBtn">Download PNG</button>
-          </div>
+let taxAmt=sub*(tax/100)
+let total=sub+taxAmt
 
-          <label>Selected Line Text</label>
-          <input id="lineText" value="NEW LINE 20.00">
+txt+="\n"+line("SUBTOTAL",sub)
+txt+="\n"+line("TAX",taxAmt)
+txt+="\n"+line("TOTAL",total)
+txt+="\n\n"+f
 
-          <div class="row">
-            <div>
-              <label>Font Size</label>
-              <input id="fontSize" type="number" value="26">
-            </div>
-            <div>
-              <label>Box Width</label>
-              <input id="boxWidth" type="number" value="260">
-            </div>
-          </div>
-
-          <div class="row">
-            <div>
-              <label>Box Height</label>
-              <input id="boxHeight" type="number" value="34">
-            </div>
-            <div>
-              <label>X</label>
-              <input id="lineX" type="number" value="40">
-            </div>
-          </div>
-
-          <label>Y</label>
-          <input id="lineY" type="number" value="40">
-
-          <div class="small">Upload image → Add Line → tap a line → edit text → drag it into place → download PNG.</div>
-
-          <div class="lineList" id="lineList"></div>
-        </div>
-
-        <div class="stage">
-          <canvas id="canvas" width="800" height="1000"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const createTab=document.getElementById("createTab");
-    const editTab=document.getElementById("editTab");
-    const createSection=document.getElementById("createSection");
-    const editSection=document.getElementById("editSection");
-    const preview=document.getElementById("receiptPreview");
-
-    createTab.onclick=()=>{createTab.classList.add("active");editTab.classList.remove("active");createSection.classList.add("active");editSection.classList.remove("active");};
-    editTab.onclick=()=>{editTab.classList.add("active");createTab.classList.remove("active");editSection.classList.add("active");createSection.classList.remove("active");};
-
-    function lineFormat(left,right){
-      left=String(left).toUpperCase();
-      right=Number(right).toFixed(2);
-      let spaces=32-left.length-right.length;
-      if(spaces<1)spaces=1;
-      return left+" ".repeat(spaces)+right;
-    }
-
-    function buildReceipt(){
-      let biz=document.getElementById("biz").value.trim().toUpperCase();
-      let date=document.getElementById("date").value.trim();
-      let time=document.getElementById("time").value.trim();
-      let order=document.getElementById("order").value.trim();
-      let tax=parseFloat(document.getElementById("tax").value||"0");
-      let footer=document.getElementById("footer").value.trim().toUpperCase();
-      let rows=document.getElementById("items").value.split("\n").map(v=>v.trim()).filter(Boolean);
-
-      let subtotal=0;
-      let out=biz+"\n\nDATE: "+date+"\nTIME: "+time+"\nORDER: "+order+"\n\n";
-
-      rows.forEach(r=>{
-        let p=r.split("|");
-        if(p.length<2)return;
-        let name=p[0].trim();
-        let price=parseFloat(p[1].trim());
-        if(!name||isNaN(price))return;
-        subtotal+=price;
-        out+=lineFormat(name,price)+"\n";
-      });
-
-      let taxAmt=subtotal*(tax/100);
-      let total=subtotal+taxAmt;
-      out+="\n"+lineFormat("SUBTOTAL",subtotal)+"\n";
-      out+=lineFormat("TAX",taxAmt)+"\n";
-      out+=lineFormat("TOTAL",total)+"\n";
-      if(footer)out+="\n"+footer;
-      return out;
-    }
-
-    document.getElementById("generateBtn").onclick=()=>{preview.textContent=buildReceipt();};
-    document.getElementById("downloadTxtBtn").onclick=()=>{
-      let blob=new Blob([buildReceipt()],{type:"text/plain"});
-      let a=document.createElement("a");
-      a.href=URL.createObjectURL(blob);
-      a.download="receipt.txt";
-      a.click();
-    };
-
-    const canvas=document.getElementById("canvas");
-    const ctx=canvas.getContext("2d");
-    let baseImage=null;
-    let lines=[];
-    let selected=-1;
-    let dragging=false,offX=0,offY=0;
-
-    function draw(){
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      if(baseImage){
-        ctx.drawImage(baseImage,0,0,canvas.width,canvas.height);
-      }else{
-        ctx.fillStyle="#fafafa";
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle="#777";
-        ctx.font="24px Arial";
-        ctx.fillText("Upload a receipt screenshot.",40,60);
-      }
-
-      lines.forEach((l,i)=>{
-        ctx.fillStyle="#fff";
-        ctx.fillRect(l.x,l.y,l.w,l.h);
-        ctx.fillStyle="#111";
-        ctx.font=l.size+'px Courier New';
-        ctx.textBaseline="top";
-        ctx.fillText(l.text,l.x+6,l.y+4);
-        if(i===selected){
-          ctx.strokeStyle="#2b7cff";
-          ctx.lineWidth=2;
-          ctx.strokeRect(l.x,l.y,l.w,l.h);
-        }
-      });
-      renderList();
-    }
-
-    function renderList(){
-      let box=document.getElementById("lineList");
-      box.innerHTML="";
-      lines.forEach((l,i)=>{
-        let d=document.createElement("div");
-        d.className="lineItem"+(i===selected?" active":"");
-        d.textContent="Line "+(i+1)+": "+l.text;
-        d.onclick=()=>{
-          selected=i;
-          syncInputs();
-          draw();
-        };
-        box.appendChild(d);
-      });
-    }
-
-    function syncInputs(){
-      if(selected<0||!lines[selected])return;
-      let l=lines[selected];
-      document.getElementById("lineText").value=l.text;
-      document.getElementById("fontSize").value=l.size;
-      document.getElementById("boxWidth").value=l.w;
-      document.getElementById("boxHeight").value=l.h;
-      document.getElementById("lineX").value=Math.round(l.x);
-      document.getElementById("lineY").value=Math.round(l.y);
-    }
-
-    document.getElementById("imageUpload").onchange=e=>{
-      let file=e.target.files[0];
-      if(!file)return;
-      let reader=new FileReader();
-      reader.onload=ev=>{
-        let img=new Image();
-        img.onload=()=>{
-          baseImage=img;
-          canvas.width=img.width;
-          canvas.height=img.height;
-          lines=[];
-          selected=-1;
-          draw();
-        };
-        img.src=ev.target.result;
-      };
-      reader.readAsDataURL(file);
-    };
-
-    document.getElementById("addLineBtn").onclick=()=>{
-      if(!baseImage)return;
-      lines.push({x:40,y:40,w:260,h:34,size:26,text:"NEW LINE 20.00"});
-      selected=lines.length-1;
-      syncInputs();
-      draw();
-    };
-
-    document.getElementById("deleteLineBtn").onclick=()=>{
-      if(selected<0)return;
-      lines.splice(selected,1);
-      selected=lines.length?0:-1;
-      syncInputs();
-      draw();
-    };
-
-    ["lineText","fontSize","boxWidth","boxHeight","lineX","lineY"].forEach(id=>{
-      document.getElementById(id).oninput=()=>{
-        if(selected<0||!lines[selected])return;
-        let l=lines[selected];
-        l.text=document.getElementById("lineText").value;
-        l.size=parseInt(document.getElementById("fontSize").value||"26");
-        l.w=parseInt(document.getElementById("boxWidth").value||"260");
-        l.h=parseInt(document.getElementById("boxHeight").value||"34");
-        l.x=parseFloat(document.getElementById("lineX").value||"40");
-        l.y=parseFloat(document.getElementById("lineY").value||"40");
-        draw();
-      };
-    });
-
-    function pos(evt){
-      const rect=canvas.getBoundingClientRect();
-      return {
-        x:(evt.clientX-rect.left)*(canvas.width/rect.width),
-        y:(evt.clientY-rect.top)*(canvas.height/rect.height)
-      };
-    }
-
-    function hit(x,y){
-      for(let i=lines.length-1;i>=0;i--){
-        let l=lines[i];
-        if(x>=l.x&&x<=l.x+l.w&&y>=l.y&&y<=l.y+l.h)return i;
-      }
-      return -1;
-    }
-
-    canvas.onmousedown=e=>{
-      let p=pos(e);
-      let i=hit(p.x,p.y);
-      if(i>=0){
-        selected=i;
-        offX=p.x-lines[i].x;
-        offY=p.y-lines[i].y;
-        dragging=true;
-        syncInputs();
-        draw();
-      }
-    };
-
-    window.onmousemove=e=>{
-      if(!dragging||selected<0)return;
-      let p=pos(e);
-      let l=lines[selected];
-      l.x=p.x-offX;
-      l.y=p.y-offY;
-      syncInputs();
-      draw();
-    };
-
-    window.onmouseup=()=>{dragging=false;};
-
-    document.getElementById("downloadBtn").onclick=()=>{
-      let a=document.createElement("a");
-      a.href=canvas.toDataURL("image/png");
-      a.download="edited-receipt.png";
-      a.click();
-    };
-
-    draw();
-  </script>
+document.getElementById("out").textContent=txt
+}
+</script>
 </body>
-                </html>
+</html>
